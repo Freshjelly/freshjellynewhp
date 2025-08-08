@@ -1,0 +1,52 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgOcean" cx="50%" cy="20%" r="100%">
+      <stop offset="0%" style="stop-color:#87CEEB"/>
+      <stop offset="50%" style="stop-color:#4682B4"/>
+      <stop offset="100%" style="stop-color:#191970"/>
+    </radialGradient>
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:0.8"/>
+      <stop offset="50%" style="stop-color:#29b6f6;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#03a9f4;stop-opacity:0.8"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Ocean Background -->
+  <rect width="1200" height="630" fill="url(#bgOcean)"/>
+  
+  <!-- Light Rays -->
+  <polygon points="300,0 350,0 500,630 400,630" fill="#87CEEB" opacity="0.3"/>
+  <polygon points="600,0 700,0 900,630 750,630" fill="#87CEEB" opacity="0.2"/>
+  <polygon points="900,0 950,0 1100,630 1000,630" fill="#87CEEB" opacity="0.3"/>
+  
+  <!-- Ocean Waves -->
+  <path d="M0 300 Q200 250 400 300 T800 300 T1200 300 V630 H0 Z" fill="url(#waveGrad)"/>
+  <path d="M0 400 Q150 370 300 400 T600 400 T900 400 T1200 400 V630 H0 Z" fill="#29b6f6" opacity="0.4"/>
+  
+  <!-- Bubbles -->
+  <circle cx="150" cy="200" r="12" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="300" cy="150" r="8" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="500" cy="180" r="10" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="700" cy="120" r="6" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="900" cy="160" r="14" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="1050" cy="140" r="9" fill="#FFFFFF" opacity="0.5"/>
+  
+  <!-- Underwater Objects -->
+  <ellipse cx="200" cy="500" rx="25" ry="15" fill="#FFD700" opacity="0.8"/>
+  <rect x="450" y="480" width="30" height="40" rx="5" fill="#8B4513" opacity="0.7"/>
+  <circle cx="800" cy="520" r="20" fill="#FF6B6B" opacity="0.6"/>
+  
+  <!-- Title -->
+  <text x="600" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="64" font-weight="bold" fill="#FFFFFF" opacity="0.95">
+    Freshjelly's
+  </text>
+  <text x="600" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="300" fill="#E3F2FD">
+    Ocean Playground
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#B3E5FC" opacity="0.8">
+    Dive into an interactive WebGL ocean experience
+  </text>
+</svg>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Freshjelly's Ocean Playground - Enhanced v2.0</title>
+    <meta name="description" content="Dive into Freshjelly's immersive ocean playground - an enhanced WebGL experience featuring procedural 3D objects, dive animations, and cutting-edge underwater effects. Experience the depths of creativity!" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Freshjelly's Ocean Playground - Enhanced v2.0" />
+    <meta property="og:description" content="Immersive WebGL ocean experience with dive animations, procedural 3D objects, and advanced underwater effects. Built with React Three Fiber." />
+    <meta property="og:image" content="/og-ocean.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Freshjelly's Ocean Playground - Enhanced v2.0" />
+    <meta property="twitter:description" content="Dive into an immersive WebGL ocean with procedural objects, realistic water effects, and interactive exploration." />
+    <meta property="twitter:image" content="/og-ocean.jpg" />
+
+    <!-- Enhanced Meta Tags -->
+    <meta name="keywords" content="WebGL, React Three Fiber, Ocean, 3D, Interactive, Underwater, Animation, GSAP, Three.js, Portfolio, Freshjelly" />
+    <meta name="author" content="Freshjelly" />
+    <meta name="theme-color" content="#87CEEB" />
+    <meta name="color-scheme" content="light dark" />
+    
+    <!-- Performance Hints -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Google Fonts - Inter + Noto Sans JP -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* CSS Reset & Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        overflow: hidden;
+        background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #root {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+
+      /* Enhanced Loading Screen */
+      .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        color: white;
+        font-size: 1.5rem;
+        text-align: center;
+        transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+      }
+
+      .loading.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        animation: loadingPulse 2s ease-in-out infinite alternate;
+      }
+
+      .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top: 4px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite;
+        filter: drop-shadow(0 0 10px rgba(135, 206, 235, 0.5));
+      }
+
+      .loading-text {
+        font-size: 1.4rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .loading-subtext {
+        font-size: 1rem;
+        opacity: 0.8;
+        font-style: italic;
+        margin-top: 0.5rem;
+      }
+
+      .loading-version {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.9rem;
+        opacity: 0.6;
+        font-weight: 300;
+      }
+
+      .loading-features {
+        position: absolute;
+        bottom: 4rem;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8rem;
+        opacity: 0.7;
+        text-align: center;
+        max-width: 80%;
+        line-height: 1.4;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes loadingPulse {
+        0% { transform: scale(1); opacity: 0.9; }
+        100% { transform: scale(1.02); opacity: 1; }
+      }
+
+      /* WebGL Error Fallback */
+      .webgl-error {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+        color: white;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .webgl-error.show {
+        display: flex;
+      }
+
+      .webgl-error-content {
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .webgl-error h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        color: #87CEEB;
+      }
+
+      .webgl-error p {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        opacity: 0.9;
+      }
+
+      .webgl-error ul {
+        text-align: left;
+        margin: 1rem 0;
+        padding-left: 2rem;
+        opacity: 0.8;
+      }
+
+      .webgl-error li {
+        margin-bottom: 0.5rem;
+      }
+
+      /* Performance Hints */
+      .performance-hint {
+        position: fixed;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        z-index: 1500;
+        display: none;
+        backdrop-filter: blur(5px);
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      .performance-hint.show {
+        display: block;
+      }
+
+      @keyframes fadeInUp {
+        0% { opacity: 0; transform: translate(-50%, 20px); }
+        100% { opacity: 1; transform: translate(-50%, 0); }
+      }
+
+      /* Mobile-specific optimizations */
+      @media (max-width: 768px) {
+        .loading {
+          font-size: 1.2rem;
+        }
+
+        .loading-spinner {
+          width: 50px;
+          height: 50px;
+        }
+
+        .loading-text {
+          font-size: 1.2rem;
+        }
+
+        .loading-subtext {
+          font-size: 0.9rem;
+        }
+
+        .loading-features {
+          font-size: 0.7rem;
+          bottom: 3rem;
+        }
+
+        .webgl-error-content {
+          padding: 1.5rem;
+          margin: 1rem;
+        }
+
+        .webgl-error h2 {
+          font-size: 1.5rem;
+        }
+      }
+
+      /* High contrast mode support */
+      @media (prefers-contrast: high) {
+        .loading {
+          background: linear-gradient(180deg, #000080 0%, #000040 50%, #000020 100%);
+        }
+
+        .loading-spinner {
+          border-top-color: #ffffff;
+        }
+      }
+
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        .loading-spinner {
+          animation-duration: 3s;
+        }
+
+        .loading-content {
+          animation: none;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      }
+
+      /* Print styles */
+      @media print {
+        .loading, .webgl-error, .performance-hint {
+          display: none !important;
+        }
+
+        body::after {
+          content: "Freshjelly's Ocean Playground - Interactive WebGL Experience\A Visit the website for the full immersive experience.";
+          white-space: pre;
+          display: block;
+          text-align: center;
+          padding: 2rem;
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Enhanced Loading Screen -->
+    <div class="loading" id="loading">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div>
+          <div class="loading-text">Diving into the Ocean...</div>
+          <div class="loading-subtext">海の世界へ潜っています...</div>
+        </div>
+      </div>
+      
+      <div class="loading-features">
+        ✨ Enhanced v2.0 • Procedural Objects • Dive Animations • Advanced Effects
+      </div>
+      
+      <div class="loading-version">
+        Powered by React Three Fiber + GSAP + Zustand
+      </div>
+    </div>
+
+    <!-- WebGL Error Fallback -->
+    <div class="webgl-error" id="webgl-error">
+      <div class="webgl-error-content">
+        <h2>🌊 Ocean Playground Needs WebGL</h2>
+        <p>This immersive ocean experience requires WebGL to render the 3D underwater world.</p>
+        
+        <p><strong>To enable WebGL:</strong></p>
+        <ul>
+          <li>Update your browser to the latest version</li>
+          <li>Enable hardware acceleration in browser settings</li>
+          <li>Update your graphics drivers</li>
+          <li>Try a different browser (Chrome/Firefox recommended)</li>
+        </ul>
+        
+        <p>Sorry for the inconvenience! The ocean depths await your WebGL-enabled device. 🐠</p>
+      </div>
+    </div>
+
+    <!-- Performance Hint -->
+    <div class="performance-hint" id="performance-hint">
+      💡 Tip: Close other browser tabs for better performance
+    </div>
+
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <script>
+      // Enhanced loading and error handling
+      (function() {
+        let loadingTimeout;
+        let performanceHintTimeout;
+
+        // Show performance hint for users with many tabs
+        if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
+          performanceHintTimeout = setTimeout(() => {
+            const hint = document.getElementById('performance-hint');
+            if (hint) {
+              hint.classList.add('show');
+              setTimeout(() => hint.classList.remove('show'), 5000);
+            }
+          }, 3000);
+        }
+
+        // WebGL support detection
+        function checkWebGLSupport() {
+          try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            return !!gl;
+          } catch (e) {
+            return false;
+          }
+        }
+
+        // Show WebGL error if not supported
+        if (!checkWebGLSupport()) {
+          document.getElementById('webgl-error').classList.add('show');
+          document.getElementById('loading').style.display = 'none';
+          return;
+        }
+
+        // Loading timeout fallback
+        loadingTimeout = setTimeout(() => {
+          const loading = document.getElementById('loading');
+          if (loading && !loading.classList.contains('hidden')) {
+            loading.innerHTML = `
+              <div class="loading-content">
+                <div class="loading-text">Still loading ocean depths...</div>
+                <div class="loading-subtext">This might take a moment on slower connections</div>
+                <div style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.7;">
+                  Try refreshing if this takes too long
+                </div>
+              </div>
+            `;
+          }
+        }, 15000);
+
+        // Clean up on app load
+        window.addEventListener('load', () => {
+          clearTimeout(loadingTimeout);
+          clearTimeout(performanceHintTimeout);
+        });
+
+        // Listen for app ready signal
+        window.addEventListener('ocean-playground-ready', () => {
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.classList.add('hidden');
+            clearTimeout(loadingTimeout);
+          }
+        });
+
+        // Performance monitoring
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => {
+            if (performance.memory && performance.memory.usedJSHeapSize > 100 * 1024 * 1024) {
+              console.info('🌊 Ocean Playground: High memory usage detected. Consider enabling low power mode.');
+            }
+          });
+        }
+
+        // Console welcome message
+        console.log(
+          '%c🌊 Welcome to Freshjelly\'s Ocean Playground! %c\n' +
+          'Enhanced v2.0 - Dive into immersive WebGL waters\n' +
+          '• Procedural 3D Objects • Dive Animations • Advanced Effects\n' +
+          'Built with React Three Fiber + GSAP + Zustand\n\n' +
+          'Controls: R=reset, H=hide UI, L=low power, ESC=close',
+          'color: #87CEEB; font-size: 16px; font-weight: bold;',
+          'color: #4682B4; font-size: 12px;'
+        );
+      })();
+    </script>
+  </body>
+</html>

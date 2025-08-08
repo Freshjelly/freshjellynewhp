@@ -1,196 +1,87 @@
 import React, { Suspense, useEffect, useState, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { Sea } from './scene/Sea'
+import { JellySwarm } from './scene/JellySwarm'
+import { SharkPatrol } from './scene/SharkPatrol'
+import { Hud, type SceneSettings, getDensityCounts } from './ui/Hud'
+import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor'
 
 /**
- * Interactive Ocean Surface with movement
+ * Player camera controller with smooth movement
  */
-function InteractiveOcean() {
-  const meshRef = useRef<THREE.Mesh>(null)
+function PlayerController() {
+  const playerPositionRef = useRef(new THREE.Vector3(0, 5, 10))
   
-  useFrame(({ clock }) => {
-    if (meshRef.current) {
-      const time = clock.getElapsedTime()
-      meshRef.current.rotation.z = Math.sin(time * 0.3) * 0.1
-      meshRef.current.position.y = Math.sin(time * 0.2) * 0.5
-    }
-  })
-  
-  return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
-      <planeGeometry args={[200, 200, 64, 64]} />
-      <meshStandardMaterial
-        color="#1e88e5"
-        metalness={0.8}
-        roughness={0.2}
-        transparent
-        opacity={0.8}
-        wireframe={false}
-      />
-    </mesh>
-  )
-}
-
-/**
- * Enhanced Bubble System with various sizes
- */
-function EnhancedBubbles() {
-  const bubblesRef = useRef<THREE.Group>(null)
-  const bubbleCount = 50
-  
-  useFrame(({ clock }) => {
-    if (bubblesRef.current) {
-      bubblesRef.current.children.forEach((bubble, i) => {
-        if (bubble instanceof THREE.Mesh) {
-          bubble.position.y += 0.01 + (i % 3) * 0.005
-          if (bubble.position.y > 20) {
-            bubble.position.y = -20
-          }
-          bubble.rotation.x += 0.01
-          bubble.rotation.y += 0.005
-        }
-      })
-    }
-  })
-  
-  return (
-    <group ref={bubblesRef}>
-      {Array.from({ length: bubbleCount }).map((_, i) => (
-        <mesh
-          key={i}
-          position={[
-            (Math.random() - 0.5) * 50,
-            Math.random() * 40 - 20,
-            (Math.random() - 0.5) * 50
-          ]}
-        >
-          <sphereGeometry args={[0.1 + Math.random() * 0.3, 8, 8]} />
-          <meshPhysicalMaterial
-            color="#ffffff"
-            transparent
-            opacity={0.4 + Math.random() * 0.4}
-            roughness={0}
-            metalness={0}
-            clearcoat={1}
-            clearcoatRoughness={0}
-          />
-        </mesh>
-      ))}
-    </group>
-  )
-}
-
-/**
- * Interactive Objects (Treasure, Coral, etc.)
- */
-function InteractiveObjects() {
-  const objectsRef = useRef<THREE.Group>(null)
-  
-  const objects = [
-    { type: 'treasure', position: [-10, -5, -8], color: '#ffd700', size: 1 },
-    { type: 'coral', position: [15, -3, -12], color: '#ff6b6b', size: 0.8 },
-    { type: 'bottle', position: [-5, 2, -15], color: '#4ecdc4', size: 0.6 },
-    { type: 'shell', position: [8, -8, -5], color: '#f8c291', size: 0.7 }
-  ]
-  
-  useFrame(({ clock }) => {
-    if (objectsRef.current) {
-      objectsRef.current.children.forEach((obj, i) => {
-        if (obj instanceof THREE.Mesh) {
-          obj.rotation.y = Math.sin(clock.getElapsedTime() + i) * 0.3
-          obj.position.y += Math.sin(clock.getElapsedTime() * 2 + i) * 0.002
-        }
-      })
-    }
-  })
-  
-  return (
-    <group ref={objectsRef}>
-      {objects.map((obj, i) => (
-        <mesh
-          key={i}
-          position={obj.position}
-          scale={[obj.size, obj.size, obj.size]}
-          onClick={() => console.log(`Clicked ${obj.type}!`)}
-        >
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial
-            color={obj.color}
-            metalness={0.3}
-            roughness={0.7}
-            emissive={obj.color}
-            emissiveIntensity={0.1}
-          />
-        </mesh>
-      ))}
-    </group>
-  )
-}
-
-/**
- * Underwater Particles
- */
-function UnderwaterParticles() {
-  const particlesRef = useRef<THREE.Points>(null)
-  const particleCount = 200
-  
-  useFrame(() => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y += 0.001
-      particlesRef.current.rotation.x += 0.0005
-    }
-  })
-  
-  const positions = new Float32Array(particleCount * 3)
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 100
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 50
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 100
-  }
-  
-  return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particleCount}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        color="#4fc3f7"
-        size={0.1}
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-      />
-    </points>
-  )
-}
-
-/**
- * Camera Controller with smooth movement
- */
-function CameraController() {
-  useFrame(({ camera, clock }) => {
-    const time = clock.getElapsedTime()
-    camera.position.x = Math.sin(time * 0.1) * 2
-    camera.position.z = Math.cos(time * 0.1) * 2 + 10
+  useFrame(({ camera, mouse, clock }) => {
+    // Smooth mouse-based camera movement
+    const targetX = mouse.x * 3
+    const targetY = mouse.y * 2 + 5
+    
+    camera.position.lerp(
+      new THREE.Vector3(targetX, targetY, 10 + Math.sin(clock.elapsedTime * 0.2) * 2),
+      0.02
+    )
+    
+    // Look slightly ahead
+    camera.lookAt(targetX * 0.5, targetY * 0.5, 0)
+    
+    // Update player position for other components
+    playerPositionRef.current.copy(camera.position)
   })
   
   return null
 }
 
 /**
- * Enhanced Scene for Explore page
+ * Enhanced Scene for Explore page with jellyfish and sharks
  */
 export default function ExploreScene() {
   const [mounted, setMounted] = useState(false)
+  const [jellyfishPositions, setJellyfishPositions] = useState<THREE.Vector3[]>([])
+  const playerPositionRef = useRef(new THREE.Vector3(0, 5, 10))
+  
+  // Scene settings with URL persistence
+  const [sceneSettings, setSceneSettings] = useState<SceneSettings>({
+    jellyfish: true,
+    sharks: true,
+    density: 'medium',
+    enableCaustics: true,
+    enableFog: true
+  })
+  
+  // Performance monitoring with adaptive LOD
+  const { metrics, adaptiveSettings, setAdaptiveSettings } = usePerformanceMonitor({
+    targetFps: 45,
+    jellyfishCount: getDensityCounts(sceneSettings.density).jellyfish,
+    sharkCount: getDensityCounts(sceneSettings.density).sharks,
+    enablePostProcessing: true,
+    shadowQuality: 'medium',
+    enableCaustics: sceneSettings.enableCaustics,
+    enableVolumetricFog: sceneSettings.enableFog
+  })
+  
+  // Calculate actual counts based on settings and adaptive optimization
+  const densityCounts = getDensityCounts(sceneSettings.density)
+  const actualJellyfishCount = sceneSettings.jellyfish ? 
+    Math.min(densityCounts.jellyfish, adaptiveSettings.jellyfishCount) : 0
+  const actualSharkCount = sceneSettings.sharks ? 
+    Math.min(densityCounts.sharks, adaptiveSettings.sharkCount) : 0
   
   useEffect(() => {
     setMounted(true)
   }, [])
+  
+  // Update adaptive settings when scene settings change
+  useEffect(() => {
+    setAdaptiveSettings(prev => ({
+      ...prev,
+      jellyfishCount: densityCounts.jellyfish,
+      sharkCount: densityCounts.sharks,
+      enableCaustics: sceneSettings.enableCaustics,
+      enableVolumetricFog: sceneSettings.enableFog
+    }))
+  }, [sceneSettings, densityCounts, setAdaptiveSettings])
   
   if (!mounted) {
     return (
@@ -200,59 +91,141 @@ export default function ExploreScene() {
         left: '50%',
         transform: 'translate(-50%, -50%)',
         color: 'white',
-        fontSize: '1.2rem'
+        fontSize: '1.2rem',
+        textAlign: 'center'
       }}>
-        Loading Ocean...
+        <div>🌊 Loading Ocean Ecosystem...</div>
+        <div style={{ fontSize: '0.9rem', opacity: 0.7, marginTop: '0.5rem' }}>
+          Preparing jellyfish swarm and shark patrol
+        </div>
       </div>
     )
   }
   
   return (
-    <Canvas
-      camera={{
-        position: [0, 5, 10],
-        fov: 60,
-        near: 0.1,
-        far: 1000
-      }}
-      gl={{
-        antialias: true,
-        alpha: false,
-        powerPreference: 'high-performance'
-      }}
-      style={{
-        width: '100%',
-        height: '100%'
-      }}
-    >
-      {/* Enhanced Lighting */}
-      <ambientLight intensity={0.3} />
-      <directionalLight
-        position={[10, 10, 5]}
-        intensity={1.5}
-        color="#87ceeb"
-        castShadow
+    <>
+      <Canvas
+        camera={{
+          position: [0, 5, 10],
+          fov: 60,
+          near: 0.1,
+          far: 1000
+        }}
+        gl={{
+          antialias: !adaptiveSettings.shadowQuality || adaptiveSettings.shadowQuality !== 'off',
+          alpha: false,
+          powerPreference: 'high-performance',
+          stencil: false,
+          depth: true,
+          logarithmicDepthBuffer: true, // Better depth precision for large scenes
+          toneMapping: THREE.ACESFilmicToneMapping,
+          outputColorSpace: THREE.SRGBColorSpace
+        }}
+        shadows={adaptiveSettings.shadowQuality !== 'off'}
+        style={{
+          width: '100%',
+          height: '100%'
+        }}
+      >
+        {/* Player Camera Controller */}
+        <PlayerController />
+        
+        {/* Enhanced Lighting System */}
+        <ambientLight intensity={0.3} color="#4fc3f7" />
+        <directionalLight
+          position={[20, 20, 10]}
+          intensity={1.2}
+          color="#87ceeb"
+          castShadow={adaptiveSettings.shadowQuality !== 'off'}
+          shadow-mapSize-width={adaptiveSettings.shadowQuality === 'high' ? 2048 : 1024}
+          shadow-mapSize-height={adaptiveSettings.shadowQuality === 'high' ? 2048 : 1024}
+          shadow-camera-near={1}
+          shadow-camera-far={100}
+          shadow-camera-left={-50}
+          shadow-camera-right={50}
+          shadow-camera-top={50}
+          shadow-camera-bottom={-50}
+          shadow-bias={-0.001}
+        />
+        
+        {/* Main Scene Components */}
+        <Suspense fallback={null}>
+          {/* Ocean Environment */}
+          <Sea
+            waveHeight={0.8}
+            fogDensity={sceneSettings.enableFog ? 0.4 : 0.1}
+            enableCaustics={adaptiveSettings.enableCaustics}
+          />
+          
+          {/* Jellyfish Swarm */}
+          {sceneSettings.jellyfish && actualJellyfishCount > 0 && (
+            <JellySwarm
+              count={actualJellyfishCount}
+              radius={35}
+              speedRange={[0.2, 0.6]}
+              playerPosition={playerPositionRef.current}
+            />
+          )}
+          
+          {/* Shark Patrol */}
+          {sceneSettings.sharks && actualSharkCount > 0 && (
+            <SharkPatrol
+              count={actualSharkCount}
+              patrolRadius={40}
+              speed={0.8}
+              jellyfishPositions={jellyfishPositions}
+              playerPosition={playerPositionRef.current}
+            />
+          )}
+        </Suspense>
+        
+        {/* Post-processing effects */}
+        {adaptiveSettings.enablePostProcessing && (
+          <Suspense fallback={null}>
+            {/* Minimal bloom effect */}
+            <pointLight
+              position={[0, 15, 0]}
+              intensity={0.1}
+              color="#4fc3f7"
+              distance={60}
+              decay={1.5}
+            />
+          </Suspense>
+        )}
+      </Canvas>
+      
+      {/* HUD Overlay */}
+      <Hud
+        settings={sceneSettings}
+        onSettingsChange={setSceneSettings}
+        performanceInfo={{
+          fps: metrics.fps,
+          jellyfishCount: actualJellyfishCount,
+          sharkCount: actualSharkCount
+        }}
       />
-      <pointLight
-        position={[0, 10, 0]}
-        intensity={0.8}
-        color="#4fc3f7"
-        distance={30}
-      />
       
-      {/* Camera Controls */}
-      <CameraController />
-      
-      {/* Main Scene Elements */}
-      <Suspense fallback={null}>
-        <InteractiveOcean />
-        <EnhancedBubbles />
-        <InteractiveObjects />
-        <UnderwaterParticles />
-      </Suspense>
-      
-      {/* Fog for depth effect */}
-      <fog attach="fog" args={['#191970', 10, 50]} />
-    </Canvas>
+      {/* Performance Info (Dev only) */}
+      {import.meta.env.DEV && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          left: '10px',
+          color: 'white',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          padding: '8px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          zIndex: 1000
+        }}>
+          <div>FPS: {metrics.fps.toFixed(1)}</div>
+          <div>Frame: {metrics.frameTime.toFixed(1)}ms</div>
+          {metrics.gpuTime && <div>GPU: {metrics.gpuTime.toFixed(1)}ms</div>}
+          {metrics.memoryUsage && <div>Memory: {metrics.memoryUsage.toFixed(1)}MB</div>}
+          <div>Jellyfish: {actualJellyfishCount}</div>
+          <div>Sharks: {actualSharkCount}</div>
+        </div>
+      )}
+    </>
   )
 }

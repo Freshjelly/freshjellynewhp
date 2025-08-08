@@ -1,7 +1,21 @@
-import React, { Suspense, useEffect, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, useProgress } from '@react-three/drei'
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
+import React, { Suspense, useEffect, useState, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
+
+/**
+ * Simple Camera Controller
+ */
+function CameraController() {
+  const ref = useRef<THREE.Group>(null)
+  
+  useFrame(({ clock }) => {
+    if (ref.current) {
+      ref.current.rotation.y = clock.getElapsedTime() * 0.1
+    }
+  })
+  
+  return <group ref={ref} />
+}
 
 /**
  * Lightweight Ocean Surface Component
@@ -54,21 +68,22 @@ function BubbleSystem() {
 }
 
 /**
- * Progress Loader with 6-second failopen
+ * Simple Loading indicator with 6-second failopen
  */
 function LoadingProgress() {
-  const { progress } = useProgress()
+  const [visible, setVisible] = useState(true)
   const [timedOut, setTimedOut] = useState(false)
   
   useEffect(() => {
     const timer = setTimeout(() => {
       setTimedOut(true)
+      setVisible(false)
     }, 6000)
     
     return () => clearTimeout(timer)
   }, [])
   
-  if (progress === 100 || timedOut) {
+  if (!visible || timedOut) {
     return null
   }
   
@@ -84,7 +99,7 @@ function LoadingProgress() {
       backdropFilter: 'blur(10px)',
       fontSize: '0.9rem'
     }}>
-      Loading 3D Ocean: {Math.round(progress)}%
+      Loading 3D Ocean...
     </div>
   )
 }
@@ -140,15 +155,8 @@ export default function Scene() {
           zIndex: -2
         }}
       >
-        <OrbitControls
-          enablePan={false}
-          enableZoom={false}
-          enableRotate={true}
-          autoRotate
-          autoRotateSpeed={0.2}
-          minPolarAngle={Math.PI / 6}
-          maxPolarAngle={Math.PI / 2}
-        />
+        {/* Simple Camera Controls */}
+        <CameraController />
         
         {/* Lighting */}
         <ambientLight intensity={0.4} />
@@ -156,32 +164,13 @@ export default function Scene() {
           position={[10, 20, 5]}
           intensity={1.2}
           color="#87ceeb"
-          castShadow={quality === 'high'}
         />
         
         {/* Main Scene Content */}
         <Suspense fallback={null}>
           <OceanSurface />
           <BubbleSystem />
-          <Environment preset="sunset" background={false} />
         </Suspense>
-        
-        {/* Post-processing (only on high quality) */}
-        {quality === 'high' && (
-          <Suspense fallback={null}>
-            <EffectComposer>
-              <Bloom
-                intensity={0.3}
-                luminanceThreshold={0.8}
-                luminanceSmoothing={0.9}
-              />
-              <Vignette
-                offset={0.3}
-                darkness={0.1}
-              />
-            </EffectComposer>
-          </Suspense>
-        )}
       </Canvas>
     </>
   )

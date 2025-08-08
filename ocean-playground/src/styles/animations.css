@@ -1,0 +1,58 @@
+/* Animation CSS - Non-critical animations */
+
+/* Animations */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Motion preferences handling */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .nav-button:hover,
+  .close-button:hover,
+  .submit-button:hover,
+  .work-item:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-button,
+  .ui-panel,
+  .close-button,
+  .object-label {
+    border-width: 2px;
+    border-color: white;
+  }
+  
+  .nav-button:hover,
+  .close-button:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+}

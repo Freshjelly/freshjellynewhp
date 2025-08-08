@@ -1,22 +1,24 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, lazy } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
 import { useAppState } from './state/useAppState'
 
-// Enhanced Components
+// Critical Components (loaded immediately)
 import DiveSystem from './components/DiveSystem'
-import EnhancedOceanSurface from './components/EnhancedOceanSurface'
-import EnhancedBubbleSystem from './components/EnhancedBubbleSystem'
-import ObjectsCluster from './components/ObjectsCluster'
-import PostProcessingEffects from './components/PostProcessingEffects'
-
-// UI Components
-import Overlay from './components/ui/Overlay'
-import AboutPanel from './components/ui/panels/AboutPanel'
-import WorksPanel from './components/ui/panels/WorksPanel'
-import ContactPanel from './components/ui/panels/ContactPanel'
 import Loading from './components/Loading'
 import BootLoader from './components/ui/BootLoader'
+
+// Heavy 3D Components (lazy loaded)
+const EnhancedOceanSurface = lazy(() => import('./components/EnhancedOceanSurface'))
+const EnhancedBubbleSystem = lazy(() => import('./components/EnhancedBubbleSystem'))
+const ObjectsCluster = lazy(() => import('./components/ObjectsCluster'))
+const PostProcessingEffects = lazy(() => import('./components/PostProcessingEffects'))
+
+// UI Components (lazy loaded)
+const Overlay = lazy(() => import('./components/ui/Overlay'))
+const AboutPanel = lazy(() => import('./components/ui/panels/AboutPanel'))
+const WorksPanel = lazy(() => import('./components/ui/panels/WorksPanel'))
+const ContactPanel = lazy(() => import('./components/ui/panels/ContactPanel'))
 
 /**
  * Enhanced Ocean Playground App
@@ -112,74 +114,64 @@ function App() {
     <div id="app" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
       {/* Enhanced 3D Ocean Scene */}
       <Canvas {...canvasProps}>
+        {/* Critical components loaded first */}
+        <OrbitControls
+          enablePan={false}
+          enableZoom={!prefersReducedMotion}
+          enableRotate={true}
+          minDistance={3}
+          maxDistance={25}
+          minPolarAngle={Math.PI / 6}
+          maxPolarAngle={Math.PI / 1.8}
+          maxAzimuthAngle={Math.PI}
+          minAzimuthAngle={-Math.PI}
+          autoRotate={false}
+          autoRotateSpeed={0.2}
+          enableDamping={!prefersReducedMotion}
+          dampingFactor={0.05}
+          rotateSpeed={prefersReducedMotion ? 0.3 : 0.5}
+          zoomSpeed={prefersReducedMotion ? 0.3 : 0.8}
+        />
+
+        {/* Dive Animation System - loaded immediately */}
+        <DiveSystem />
+        
+        {/* Core lighting - loaded immediately */}
+        <ambientLight 
+          intensity={depth > 0.5 ? 0.2 : 0.4} 
+          color={depth > 0.5 ? 0x1e3a8a : 0x4fc3f7} 
+        />
+        
+        <directionalLight
+          position={[10, 20, 5]}
+          intensity={1.5 - (depth * 0.8)}
+          color={0x87ceeb}
+          castShadow={!lowPowerMode && !isMobile}
+          shadow-mapSize-width={isMobile ? 512 : 2048}
+          shadow-mapSize-height={isMobile ? 512 : 2048}
+          shadow-camera-near={0.5}
+          shadow-camera-far={500}
+          shadow-camera-left={-50}
+          shadow-camera-right={50}
+          shadow-camera-top={50}
+          shadow-camera-bottom={-50}
+          shadow-bias={-0.0005}
+        />
+
+        {/* Primary ocean components - loaded second */}
         <Suspense fallback={null}>
-          {/* Performance Monitor - automatically adjusts quality */}
-          {/* <AdaptivePerformance /> */}
-          
-          {/* Enhanced Camera Controls */}
-          <OrbitControls
-            enablePan={false}
-            enableZoom={!prefersReducedMotion}
-            enableRotate={true}
-            minDistance={3}
-            maxDistance={25}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 1.8}
-            maxAzimuthAngle={Math.PI}
-            minAzimuthAngle={-Math.PI}
-            autoRotate={false}
-            autoRotateSpeed={0.2}
-            enableDamping={!prefersReducedMotion}
-            dampingFactor={0.05}
-            rotateSpeed={prefersReducedMotion ? 0.3 : 0.5}
-            zoomSpeed={prefersReducedMotion ? 0.3 : 0.8}
-          />
-
-          {/* Dive Animation System */}
-          <DiveSystem />
-          
-          {/* Enhanced Ocean Surface with Depth Effects */}
           <EnhancedOceanSurface />
-          
-          {/* Enhanced Bubble System with InstancedMesh */}
-          <EnhancedBubbleSystem />
-          
-          {/* Procedural Objects Cluster with Seeded Layout */}
-          <ObjectsCluster 
-            onObjectHover={handleObjectHover}
-            onObjectLeave={handleObjectLeave}
-          />
-
-          {/* Environment and Lighting */}
           <Environment 
             preset="sunset" 
             background={false}
             blur={lowPowerMode ? 0.8 : 0.5}
           />
+        </Suspense>
+        
+        {/* Secondary effects - loaded third */}
+        <Suspense fallback={null}>
+          <EnhancedBubbleSystem />
           
-          {/* Ambient ocean lighting */}
-          <ambientLight 
-            intensity={depth > 0.5 ? 0.2 : 0.4} 
-            color={depth > 0.5 ? 0x1e3a8a : 0x4fc3f7} 
-          />
-          
-          {/* Main directional light (sun through water) */}
-          <directionalLight
-            position={[10, 20, 5]}
-            intensity={1.5 - (depth * 0.8)}
-            color={0x87ceeb}
-            castShadow={!lowPowerMode && !isMobile}
-            shadow-mapSize-width={isMobile ? 512 : 2048}
-            shadow-mapSize-height={isMobile ? 512 : 2048}
-            shadow-camera-near={0.5}
-            shadow-camera-far={500}
-            shadow-camera-left={-50}
-            shadow-camera-right={50}
-            shadow-camera-top={50}
-            shadow-camera-bottom={-50}
-            shadow-bias={-0.0005}
-          />
-
           {/* Underwater mood lighting */}
           {depth > 0.3 && (
             <>
@@ -208,19 +200,42 @@ function App() {
               />
             </>
           )}
+        </Suspense>
+        
+        {/* Interactive elements - loaded fourth */}
+        <Suspense fallback={null}>
+          <ObjectsCluster 
+            onObjectHover={handleObjectHover}
+            onObjectLeave={handleObjectLeave}
+          />
+        </Suspense>
 
-          {/* Post-processing Effects */}
+        {/* Heavy post-processing - loaded last */}
+        <Suspense fallback={null}>
           <PostProcessingEffects />
         </Suspense>
       </Canvas>
 
       {/* Enhanced UI Overlay */}
-      <Overlay />
+      <Suspense fallback={<div style={{ 
+        position: 'fixed', 
+        top: '20px', 
+        right: '20px', 
+        color: 'white', 
+        fontSize: '14px',
+        opacity: 0.7 
+      }}>
+        Loading UI...
+      </div>}>
+        <Overlay />
+      </Suspense>
 
       {/* Modal Panels */}
-      {activePanel === 'about' && <AboutPanel />}
-      {activePanel === 'works' && <WorksPanel />}
-      {activePanel === 'contact' && <ContactPanel />}
+      <Suspense fallback={null}>
+        {activePanel === 'about' && <AboutPanel />}
+        {activePanel === 'works' && <WorksPanel />}
+        {activePanel === 'contact' && <ContactPanel />}
+      </Suspense>
 
       {/* Panel Background Overlay */}
       {activePanel && (

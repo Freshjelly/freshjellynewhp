@@ -27,16 +27,21 @@
     <meta name="theme-color" content="#87CEEB" />
     <meta name="color-scheme" content="light dark" />
     
+    <!-- Critical Resource Preloads -->
+    <link rel="preload" as="image" href="/og-ocean.jpg" />
+    <link rel="preload" as="script" href="/src/main.jsx" />
+    
+    <!-- Font Preloads (using Fontsource for better performance) -->
+    <link rel="preload" as="style" href="/src/fonts/inter.css" />
+    <link rel="preload" as="style" href="/src/fonts/noto-sans-jp.css" />
+    
     <!-- Performance Hints -->
-    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- Google Fonts - Inter + Noto Sans JP -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="dns-prefetch" href="//unpkg.com" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
     <style>
       /* CSS Reset & Base Styles */
@@ -47,7 +52,8 @@
       }
       
       body {
-        font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        font-display: swap;
         overflow: hidden;
         background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
         user-select: none;
@@ -56,6 +62,7 @@
         -ms-user-select: none;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
       }
 
       #root {
@@ -354,6 +361,10 @@
       💡 Tip: Close other browser tabs for better performance
     </div>
 
+    <!-- Import optimized fonts -->
+    <link rel="stylesheet" href="/src/fonts/inter.css">
+    <link rel="stylesheet" href="/src/fonts/noto-sans-jp.css">
+    
     <script type="module" src="/src/main.jsx"></script>
     
     <script>

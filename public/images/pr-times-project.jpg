@@ -1,0 +1,10 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#1a365d"/>
+  <rect x="50" y="80" width="300" height="20" rx="4" fill="#4299e1"/>
+  <rect x="50" y="120" width="250" height="15" rx="3" fill="#63b3ed"/>
+  <rect x="50" y="150" width="200" height="15" rx="3" fill="#90cdf4"/>
+  <rect x="50" y="180" width="280" height="15" rx="3" fill="#bee3f8"/>
+  <circle cx="320" cy="200" r="25" fill="#48bb78"/>
+  <text x="320" y="206" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#ffffff">✓</text>
+  <text x="200" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#e2e8f0">PR TIMES Auto-Collector</text>
+</svg>

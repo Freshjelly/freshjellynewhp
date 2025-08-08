@@ -16,7 +16,10 @@
       "Bash(node:*)",
       "Bash(npm:*)",
       "Bash(pkill:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(npx create-astro@latest:*)",
+      "Bash(npx astro add:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

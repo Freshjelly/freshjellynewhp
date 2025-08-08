@@ -20,7 +20,8 @@
       "Bash(npx create-astro@latest:*)",
       "Bash(npx astro add:*)",
       "Bash(true)",
-      "Bash(npx vite-bundle-visualizer:*)"
+      "Bash(npx vite-bundle-visualizer:*)",
+      "WebFetch(domain:localhost)"
     ],
     "deny": []
   }

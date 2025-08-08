@@ -6,6 +6,7 @@ import { JellySwarm } from './scene/JellySwarm'
 import { SharkPatrol } from './scene/SharkPatrol'
 import { Hud, type SceneSettings, getDensityCounts } from './ui/Hud'
 import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor'
+import { PerformanceMonitor } from './PerformanceMonitor'
 
 /**
  * Player camera controller with smooth movement
@@ -51,7 +52,7 @@ export default function ExploreScene() {
   })
   
   // Performance monitoring with adaptive LOD
-  const { metrics, adaptiveSettings, setAdaptiveSettings } = usePerformanceMonitor({
+  const { metrics, adaptiveSettings, setAdaptiveSettings, handleMetricsUpdate, handleOptimize } = usePerformanceMonitor({
     targetFps: 45,
     jellyfishCount: getDensityCounts(sceneSettings.density).jellyfish,
     sharkCount: getDensityCounts(sceneSettings.density).sharks,
@@ -127,6 +128,13 @@ export default function ExploreScene() {
           height: '100%'
         }}
       >
+        {/* Performance Monitor */}
+        <PerformanceMonitor
+          onMetricsUpdate={handleMetricsUpdate}
+          adaptiveSettings={adaptiveSettings}
+          onOptimize={handleOptimize}
+        />
+        
         {/* Player Camera Controller */}
         <PlayerController />
         
@@ -220,7 +228,6 @@ export default function ExploreScene() {
         }}>
           <div>FPS: {metrics.fps.toFixed(1)}</div>
           <div>Frame: {metrics.frameTime.toFixed(1)}ms</div>
-          {metrics.gpuTime && <div>GPU: {metrics.gpuTime.toFixed(1)}ms</div>}
           {metrics.memoryUsage && <div>Memory: {metrics.memoryUsage.toFixed(1)}MB</div>}
           <div>Jellyfish: {actualJellyfishCount}</div>
           <div>Sharks: {actualSharkCount}</div>

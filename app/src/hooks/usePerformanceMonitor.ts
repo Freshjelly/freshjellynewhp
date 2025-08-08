@@ -1,12 +1,9 @@
-import { useRef, useState, useCallback } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useState, useCallback } from 'react'
 
 export interface PerformanceMetrics {
   fps: number
-  averageFps: number
   frameTime: number
   memoryUsage?: number
-  gpuTime?: number
 }
 
 export interface AdaptiveSettings {
@@ -23,64 +20,12 @@ export interface AdaptiveSettings {
  * Performance monitoring hook with adaptive LOD
  */
 export const usePerformanceMonitor = (initialSettings: AdaptiveSettings) => {
-  const frameCountRef = useRef(0)
-  const lastTimeRef = useRef(performance.now())
-  const fpsHistoryRef = useRef<number[]>([])
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     fps: 60,
-    averageFps: 60,
     frameTime: 16.67,
   })
   const [adaptiveSettings, setAdaptiveSettings] = useState(initialSettings)
-  const performanceCheckRef = useRef(0)
   
-  // GPU timing (if available)
-  const gpuTimerRef = useRef<{
-    ext?: any
-    query?: WebGLQuery
-    measuring: boolean
-  }>({ measuring: false })
-  
-  /**
-   * Initialize GPU timing if available
-   */
-  const initGPUTiming = useCallback((gl: WebGL2RenderingContext) => {
-    const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
-    if (ext) {
-      gpuTimerRef.current.ext = ext
-      gpuTimerRef.current.query = gl.createQuery()
-    }
-  }, [])
-  
-  /**
-   * Start GPU timing measurement
-   */
-  const startGPUTiming = useCallback((gl: WebGL2RenderingContext) => {
-    const { ext, query } = gpuTimerRef.current
-    if (ext && query && !gpuTimerRef.current.measuring) {
-      gl.beginQuery(ext.TIME_ELAPSED_EXT, query)
-      gpuTimerRef.current.measuring = true
-    }
-  }, [])
-  
-  /**
-   * End GPU timing measurement and get result
-   */
-  const endGPUTiming = useCallback((gl: WebGL2RenderingContext) => {
-    const { ext, query } = gpuTimerRef.current
-    if (ext && query && gpuTimerRef.current.measuring) {
-      gl.endQuery(ext.TIME_ELAPSED_EXT)
-      gpuTimerRef.current.measuring = false
-      
-      // Check if result is available (async)
-      setTimeout(() => {
-        if (gl.getQueryParameter(query, gl.QUERY_RESULT_AVAILABLE)) {
-          const gpuTime = gl.getQueryParameter(query, gl.QUERY_RESULT) / 1000000 // Convert to milliseconds
-          setMetrics(prev => ({ ...prev, gpuTime }))
-        }
-      }, 1)
-    }
-  }, [])
   
   /**
    * Adaptive optimization based on performance
@@ -148,73 +93,19 @@ export const usePerformanceMonitor = (initialSettings: AdaptiveSettings) => {
     }
   }, [initialSettings])
   
-  /**
-   * Main performance monitoring loop
-   */
-  useFrame((state) => {
-    const now = performance.now()
-    const deltaTime = now - lastTimeRef.current
-    
-    frameCountRef.current++
-    
-    // Calculate FPS every 60 frames or 1 second
-    if (frameCountRef.current >= 60 || deltaTime >= 1000) {
-      const fps = (frameCountRef.current * 1000) / deltaTime
-      const frameTime = deltaTime / frameCountRef.current
-      
-      // Update FPS history for averaging
-      fpsHistoryRef.current.push(fps)
-      if (fpsHistoryRef.current.length > 30) { // Keep last 30 samples
-        fpsHistoryRef.current.shift()
-      }
-      
-      const averageFps = fpsHistoryRef.current.reduce((sum, f) => sum + f, 0) / fpsHistoryRef.current.length
-      
-      // Get memory usage if available
-      let memoryUsage: number | undefined
-      if ('memory' in performance && (performance as any).memory) {
-        memoryUsage = (performance as any).memory.usedJSHeapSize / 1024 / 1024 // MB
-      }
-      
-      setMetrics({
-        fps,
-        averageFps,
-        frameTime,
-        memoryUsage,
-        gpuTime: gpuTimerRef.current.ext ? metrics.gpuTime : undefined
-      })
-      
-      // Perform adaptive optimization every 5 seconds
-      performanceCheckRef.current++
-      if (performanceCheckRef.current >= 5) {
-        optimizeForPerformance(averageFps, adaptiveSettings.targetFps)
-        performanceCheckRef.current = 0
-      }
-      
-      // Reset counters
-      frameCountRef.current = 0
-      lastTimeRef.current = now
-    }
-    
-    // GPU timing
-    const gl = state.gl as WebGL2RenderingContext
-    if (!gpuTimerRef.current.ext) {
-      initGPUTiming(gl)
-    }
-    
-    // Start GPU timing at beginning of frame
-    startGPUTiming(gl)
-  })
-  
-  // End GPU timing after render (use effect cleanup)
-  const endFrame = useCallback((gl: WebGL2RenderingContext) => {
-    endGPUTiming(gl)
-  }, [endGPUTiming])
+  const handleMetricsUpdate = useCallback((newMetrics: PerformanceMetrics) => {
+    setMetrics(newMetrics)
+  }, [])
+
+  const handleOptimize = useCallback((currentFps: number, targetFps: number) => {
+    optimizeForPerformance(currentFps, targetFps)
+  }, [optimizeForPerformance])
   
   return {
     metrics,
     adaptiveSettings,
     setAdaptiveSettings,
-    endFrame
+    handleMetricsUpdate,
+    handleOptimize
   }
 }

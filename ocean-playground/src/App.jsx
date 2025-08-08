@@ -16,6 +16,7 @@ import AboutPanel from './components/ui/panels/AboutPanel'
 import WorksPanel from './components/ui/panels/WorksPanel'
 import ContactPanel from './components/ui/panels/ContactPanel'
 import Loading from './components/Loading'
+import BootLoader from './components/ui/BootLoader'
 
 /**
  * Enhanced Ocean Playground App
@@ -64,12 +65,30 @@ function App() {
     setHoveredObject(null)
   }
 
+  // Handle Canvas creation and boot completion
+  const handleCanvasCreated = ({ gl }) => {
+    try {
+      // Test WebGL context
+      const extension = gl.getExtension('WEBGL_debug_renderer_info')
+      if (import.meta.env.DEV && extension) {
+        const renderer = gl.getParameter(extension.UNMASKED_RENDERER_WEBGL)
+        console.info('[BOOT] WebGL Renderer:', renderer)
+      }
+      
+      // Boot completed successfully
+      useAppState.getState().setBoot(false)
+    } catch (error) {
+      console.error('[BOOT] WebGL initialization failed:', error)
+      useAppState.getState().setBoot(false, 'WEBGL_FAIL', true)
+    }
+  }
+
   // Determine rendering quality based on performance settings
   const canvasProps = {
-    shadows: !lowPowerMode && !isMobile,
-    dpr: lowPowerMode ? [1, 1] : (isMobile ? [1, 1.5] : [1, 2]),
+    shadows: !lowPowerMode && !isMobile && !useAppState.getState().safeMode,
+    dpr: (lowPowerMode || useAppState.getState().safeMode) ? [1, 1] : (isMobile ? [1, 1.5] : [1, 2]),
     gl: {
-      antialias: !isMobile && !lowPowerMode,
+      antialias: !isMobile && !lowPowerMode && !useAppState.getState().safeMode,
       alpha: false,
       powerPreference: 'high-performance',
       stencil: false,
@@ -85,7 +104,8 @@ function App() {
       min: lowPowerMode ? 0.2 : 0.5,
       max: 1,
       debounce: 200
-    }
+    },
+    onCreated: handleCanvasCreated
   }
 
   return (
@@ -221,6 +241,9 @@ function App() {
 
       {/* Loading Screen */}
       <Loading />
+      
+      {/* Boot Loader with SafeMode and Protocol Warning */}
+      <BootLoader />
     </div>
   )
 }

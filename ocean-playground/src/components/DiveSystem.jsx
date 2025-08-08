@@ -16,6 +16,7 @@ const DiveSystem = () => {
     depth,
     isDiving,
     prefersReducedMotion,
+    isBooting,
     setDepth,
     setDiving,
     setCanResurface,
@@ -36,7 +37,8 @@ const DiveSystem = () => {
 
   // Create dive animation timeline
   useEffect(() => {
-    if (!isDiving) return
+    // Only start dive animation when boot is complete
+    if (!isDiving || isBooting) return
 
     const duration = prefersReducedMotion ? 1.2 : 3.2
     
@@ -138,6 +140,15 @@ const DiveSystem = () => {
     }, 0)
 
     timelineRef.current = tl
+    
+    // Debug logging
+    if (import.meta.env.DEV) {
+      console.info('[DIVE] Animation started', { 
+        duration, 
+        prefersReducedMotion,
+        bootComplete: !isBooting
+      })
+    }
   }
 
   // Expose surface function globally

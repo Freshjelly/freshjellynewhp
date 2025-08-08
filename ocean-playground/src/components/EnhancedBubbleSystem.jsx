@@ -16,14 +16,16 @@ const EnhancedBubbleSystem = () => {
     bubbleRate, 
     isMobile, 
     lowPowerMode,
-    depth 
+    depth,
+    safeMode 
   } = useAppState()
 
-  // Determine bubble count based on device capabilities
+  // Determine bubble count based on device capabilities and SafeMode
   const bubbleCount = useMemo(() => {
+    if (safeMode) return isMobile ? 30 : 60 // SafeMode: reduced counts
     if (lowPowerMode) return 30
     return isMobile ? 60 : 150
-  }, [isMobile, lowPowerMode])
+  }, [isMobile, lowPowerMode, safeMode])
 
   // Bubble data arrays for instanced rendering
   const bubbleData = useMemo(() => {

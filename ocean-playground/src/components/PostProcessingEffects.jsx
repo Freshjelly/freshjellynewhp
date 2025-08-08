@@ -14,11 +14,12 @@ const PostProcessingEffects = () => {
     vignetteStrength, 
     depth,
     lowPowerMode,
-    isMobile 
+    isMobile,
+    safeMode 
   } = useAppState()
 
-  // Skip post-processing on low-power devices or when explicitly disabled
-  if (lowPowerMode) {
+  // Skip post-processing in SafeMode, low-power devices, or when explicitly disabled
+  if (lowPowerMode || safeMode) {
     return null
   }
 

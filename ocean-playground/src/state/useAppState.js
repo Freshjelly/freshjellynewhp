@@ -7,6 +7,12 @@ import { subscribeWithSelector } from 'zustand/middleware'
  */
 export const useAppState = create(
   subscribeWithSelector((set, get) => ({
+    // Boot System
+    isBooting: true,
+    bootError: null, // string | null
+    safeMode: false,
+    protocolWarning: false,
+    
     // Diving System
     depth: 0, // 0 = surface, 1 = deep underwater
     isDiving: false,
@@ -31,6 +37,16 @@ export const useAppState = create(
     theme: 'default', // 'default' | 'dark' | 'light'
     
     // Actions
+    setBoot: (isBooting, bootError = null, safeMode = null) => set((state) => ({ 
+      isBooting, 
+      bootError,
+      safeMode: safeMode !== null ? safeMode : state.safeMode 
+    })),
+    
+    setProtocolWarning: (protocolWarning) => set({ protocolWarning }),
+    
+    retryBoot: () => set({ isBooting: true, bootError: null, safeMode: false }),
+    
     setDepth: (depth) => set({ depth: Math.max(0, Math.min(1, depth)) }),
     
     setDiving: (isDiving) => set({ isDiving }),
@@ -117,8 +133,9 @@ export const useAppState = create(
     
     // Auto-dive on scroll (first wheel event)
     handleFirstScroll: () => {
-      const { isDiving, prefersReducedMotion } = get()
-      if (!isDiving) {
+      const { isDiving, prefersReducedMotion, isBooting } = get()
+      // Only allow dive when boot is complete
+      if (!isDiving && !isBooting) {
         if (prefersReducedMotion) {
           // Skip animation, go directly to shallow depth
           set({ depth: 0.4, isDiving: false, canResurface: true })
@@ -126,6 +143,48 @@ export const useAppState = create(
           // Trigger dive animation
           set({ isDiving: true })
         }
+      }
+    },
+    
+    // Boot initialization with protocol check and watchdog
+    initializeBoot: () => {
+      // Check if opened via file:// protocol
+      if (window.location.protocol === 'file:') {
+        set({ protocolWarning: true })
+      }
+      
+      // 8-second watchdog timer
+      const watchdogTimer = setTimeout(() => {
+        const { isBooting } = get()
+        if (isBooting) {
+          if (import.meta.env.DEV) {
+            console.warn('[BOOT] Watchdog timeout - switching to SafeMode')
+          }
+          set({ 
+            safeMode: true, 
+            bootError: 'BOOT_TIMEOUT', 
+            isBooting: false 
+          })
+        }
+      }, 8000)
+      
+      // Clear timer when boot completes
+      const unsubscribe = useAppState.subscribe(
+        (state) => state.isBooting,
+        (isBooting) => {
+          if (!isBooting) {
+            clearTimeout(watchdogTimer)
+            unsubscribe()
+          }
+        }
+      )
+      
+      if (import.meta.env.DEV) {
+        console.info('[BOOT]', { 
+          protocol: location.protocol, 
+          safeMode: get().safeMode, 
+          bootError: get().bootError 
+        })
       }
     }
   }))
@@ -157,5 +216,6 @@ document.addEventListener('keydown', (e) => {
   }
 })
 
-// Initialize preferences on first load
+// Initialize preferences and boot on first load
 useAppState.getState().initializePreferences()
+useAppState.getState().initializeBoot()

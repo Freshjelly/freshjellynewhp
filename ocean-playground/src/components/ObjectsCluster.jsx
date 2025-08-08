@@ -87,15 +87,15 @@ const generatePositions = (count, bounds, minDistance, rng, maxAttempts = 30) =>
  * Manages procedural placement of interactive objects
  */
 const ObjectsCluster = ({ onObjectHover, onObjectLeave }) => {
-  const { seed, objectsVisible, isMobile, lowPowerMode } = useAppState()
+  const { seed, objectsVisible, isMobile, lowPowerMode, safeMode } = useAppState()
   
   // Generate object layout based on current seed
   const objectLayout = useMemo(() => {
     const rng = new SeededRandom(seed)
     
-    // Adjust counts based on performance settings
-    const mainObjectCount = lowPowerMode ? 2 : (isMobile ? 3 : 3)
-    const decorativeCount = lowPowerMode ? 5 : (isMobile ? 8 : 15)
+    // Adjust counts based on performance settings and SafeMode
+    const mainObjectCount = safeMode ? 2 : (lowPowerMode ? 2 : (isMobile ? 3 : 3))
+    const decorativeCount = safeMode ? 3 : (lowPowerMode ? 5 : (isMobile ? 8 : 15))
     
     const bounds = { minX: -8, maxX: 8, minZ: -8, maxZ: 8 }
     const minDistance = 2.0
@@ -133,7 +133,7 @@ const ObjectsCluster = ({ onObjectHover, onObjectLeave }) => {
     }))
     
     return { mainObjects, decorativeObjects }
-  }, [seed, isMobile, lowPowerMode])
+  }, [seed, isMobile, lowPowerMode, safeMode])
   
   if (!objectsVisible) {
     return null

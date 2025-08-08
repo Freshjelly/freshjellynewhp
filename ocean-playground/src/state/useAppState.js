@@ -43,6 +43,10 @@ export const useAppState = create(
       safeMode: safeMode !== null ? safeMode : state.safeMode 
     })),
     
+    // Fix for missing methods in safeLoadGLTF
+    setError: (errorType) => set({ bootError: errorType }),
+    setSafe: (safeMode) => set({ safeMode }),
+    
     setProtocolWarning: (protocolWarning) => set({ protocolWarning }),
     
     retryBoot: () => set({ isBooting: true, bootError: null, safeMode: false }),

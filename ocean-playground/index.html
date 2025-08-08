@@ -402,21 +402,20 @@
           return;
         }
 
-        // Loading timeout fallback
+        // Loading timeout fallback - SHORTENED to prevent infinite loading
         loadingTimeout = setTimeout(() => {
           const loading = document.getElementById('loading');
           if (loading && !loading.classList.contains('hidden')) {
+            console.warn('[HTML] 8-second fallback timeout - hiding loading screen');
+            loading.classList.add('hidden');
             loading.innerHTML = `
               <div class="loading-content">
-                <div class="loading-text">Still loading ocean depths...</div>
-                <div class="loading-subtext">This might take a moment on slower connections</div>
-                <div style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.7;">
-                  Try refreshing if this takes too long
-                </div>
+                <div class="loading-text">Loading completed via fallback</div>
+                <div class="loading-subtext">Ocean playground is ready!</div>
               </div>
             `;
           }
-        }, 15000);
+        }, 8000); // Reduced from 15000ms to 8000ms
 
         // Clean up on app load
         window.addEventListener('load', () => {

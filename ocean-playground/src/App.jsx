@@ -55,6 +55,39 @@ function App() {
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
+  
+  // 🚨 CRITICAL FIX: Fallback timer to prevent infinite loading
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      const { isBooting } = useAppState.getState()
+      if (isBooting) {
+        console.warn('[BOOT] 6-second fallback timer triggered - forcing boot completion')
+        useAppState.getState().setBoot(false, 'FALLBACK_TIMEOUT', false)
+        
+        // Ensure loading screen is hidden
+        const loadingElement = document.getElementById('loading')
+        if (loadingElement) {
+          loadingElement.classList.add('hidden')
+        }
+      }
+    }, 6000) // 6 seconds - shorter than the 8s watchdog for faster recovery
+    
+    // Clear timer when boot completes normally
+    const unsubscribe = useAppState.subscribe(
+      (state) => state.isBooting,
+      (isBooting) => {
+        if (!isBooting) {
+          clearTimeout(fallbackTimer)
+          unsubscribe()
+        }
+      }
+    )
+    
+    return () => {
+      clearTimeout(fallbackTimer)
+      unsubscribe()
+    }
+  }, [])
 
   // Handle object interactions
   const handleObjectHover = (object, position) => {
@@ -77,8 +110,16 @@ function App() {
         console.info('[BOOT] WebGL Renderer:', renderer)
       }
       
-      // Boot completed successfully
-      useAppState.getState().setBoot(false)
+      // 🚨 FIX: Boot completion should happen after a short delay to ensure
+      // basic scene is ready, not waiting for all Suspense components
+      setTimeout(() => {
+        const { isBooting } = useAppState.getState()
+        if (isBooting) {
+          console.info('[BOOT] Canvas ready - completing boot sequence')
+          useAppState.getState().setBoot(false)
+        }
+      }, 100) // Small delay for Canvas initialization
+      
     } catch (error) {
       console.error('[BOOT] WebGL initialization failed:', error)
       useAppState.getState().setBoot(false, 'WEBGL_FAIL', true)

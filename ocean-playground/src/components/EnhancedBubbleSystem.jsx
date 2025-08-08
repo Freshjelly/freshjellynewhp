@@ -10,6 +10,7 @@ import * as THREE from 'three'
 const EnhancedBubbleSystem = () => {
   const meshRef = useRef()
   const materialRef = useRef()
+  const initGuardRef = useRef(false)
   const { camera } = useThree()
   
   const { 

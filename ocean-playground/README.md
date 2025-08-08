@@ -1,346 +1,234 @@
-# 🌊 Freshjelly's Ocean Playground
+# 🌊 Freshjelly's Ocean Playground - Enhanced v3.0
 
-An immersive WebGL ocean experience built with React Three Fiber, featuring advanced dive animations, procedural 3D objects, and cutting-edge underwater effects. Experience the depths of creativity through interactive exploration!
+完全に堅牢な起動システムを備えた没入型WebGL海中体験。React Three Fiber、高度なダイブアニメーション、プロシージャル3Dオブジェクト、最先端の水中エフェクトを特徴とします。
 
 ![Ocean Playground](./public/og-ocean.jpg)
 
-> **✨ Enhanced Version 2.0** - Now featuring dive animations, procedural object generation, enhanced performance optimization, and full accessibility support!
+> **🛡️ Enhanced Version 3.0** - 堅牢な起動システム、8秒ウォッチドッグタイマー、セーフモードフォールバック、GLTFタイムアウト処理、ファイルプロトコル警告を搭載！
 
-## ✨ Features
+## ✨ 新機能（v3.0）
 
-### 🏊 Core Experience
-- **🌊 Advanced Dive System**: Seamless surface-to-depth transitions with realistic camera animations (3.2s dive, 1.2s for reduced motion)
-- **🏺 Procedural 3D Objects**: Auto-generated objects when GLTFs aren't available (FloatRing, TreasureChest, GlassBottle)
-- **💫 Enhanced Bubble System**: High-performance InstancedMesh with 150 bubbles (60 on mobile), click-triggered burst effects
-- **🌀 Dynamic Ocean Surface**: Depth-responsive water shader with wave animation and caustics effects
-- **👁️ Smart Object Labels**: Proximity-based descriptions (EN/JP) that only appear when underwater (depth ≥ 0.25)
+### 🛡️ 堅牢な起動システム
+- **8秒ウォッチドッグタイマー**: 無限ローディングを確実に防止
+- **セーフモード自動切替**: 初期化失敗時に自動でセーフモードに切り替え
+- **WebGL失敗検出**: WebGLコンテキスト作成失敗を検出し、適切にフォールバック
+- **プロトコル警告**: file:// で開いた場合の警告とガイダンス
+- **再試行機能**: 失敗時の包括的な再試行システム
 
-### 🎨 Visual Effects
-- **🌅 Depth-Based Lighting**: Sun intensity and color temperature adapt to diving depth
-- **🌊 Advanced Ocean Shaders**: Multi-octave noise waves with fresnel reflections and foam generation
-- **🎭 Post-Processing Pipeline**: Bloom (0→0.35), Vignette (0.05→0.14), and subtle Chromatic Aberration
-- **🎨 Atmospheric Systems**: Dynamic fog density and color progression based on depth
-- **✨ Glassmorphism UI**: Enhanced blur effects with accessibility-focused design
+### 🎯 セーフモード機能
+- ポストプロセッシング効果無効化（Bloom、Vignette、Chromatic Aberration）
+- 泡の数削減: 60個（デスクトップ）/ 30個（モバイル）← 通常150個
+- オブジェクト数簡素化: メイン2個/装飾3個 ← 通常3個/15個
+- 固定ピクセル比（dpr=1）とアンチエイリアシング無効
+- プロシージャルオブジェクトのみ（GLTFロードスキップ）
 
-### 📱 Performance & Accessibility
-- **⚡ Smart Performance Scaling**: Auto-detects mobile/low-power devices and adjusts quality accordingly
-- **♿ Full A11y Support**: WCAG 2.1 AA compliant with keyboard navigation, focus rings, and screen readers
-- **🎛️ Reduced Motion Support**: Respects `prefers-reduced-motion` with shortened animations and reduced effects
-- **📱 Mobile Optimization**: Touch controls, reduced geometry, disabled shadows, optimized DPR
-- **⏸️ Tab Visibility Management**: Automatically reduces performance when tab is inactive
+### 📡 GLTF セーフローダー
+- **5秒タイムアウト**: GLTFロードに制限時間設定
+- **プロシージャルフォールバック**: GLTF失敗時に自動でプロシージャル生成
+- **バッチローディング**: 複数ファイルの効率的な一括ロード
+- **存在チェック**: ファイル存在確認後のスマートロード
 
-### 🎮 Interactive Controls
-- **🌊 Dive/Surface Controls**: Dedicated buttons for depth control with visual feedback
-- **⌨️ Keyboard Shortcuts**: `R`=reset layout, `H`=hide UI, `L`=toggle low power, `ESC`=close panels
-- **🎲 Seeded Random Layout**: Procedural object placement with Poisson disk sampling (non-overlapping)
-- **🎯 Enhanced Object Interaction**: Click-to-burst bubbles, hover descriptions, GSAP scale animations
-- **📊 Real-time Depth Indicator**: Visual depth percentage display during underwater exploration
+### 🔄 StrictMode対応
+- **初期化ガード**: React StrictModeの二重初期化を防止
+- **GSAP保護**: タイムライン重複作成を防ぐガードシステム
+- **メモリリーク防止**: 適切なクリーンアップとリソース管理
 
-## 🚀 Quick Start
+## 🚀 クイックスタート
 
-### Prerequisites
-- Node.js (version 18 or higher)
-- npm or yarn
+### 前提条件
+- Node.js (version 18以上)
+- npm または yarn
 
-### Installation
+### インストール
 ```bash
-# Clone or download the project
+# プロジェクトをクローンまたはダウンロード
 cd ocean-playground
 
-# Install dependencies
+# 依存関係をインストール
 npm install
 
-# Start development server
+# 開発サーバーを開始
 npm run dev
 
-# Open your browser
-# Visit http://localhost:5173
+# ブラウザで開く
+# http://localhost:5173 にアクセス
 ```
 
-### Build for Production
+### 本番ビルド
 ```bash
-# Create production build
+# 本番ビルドを作成
 npm run build
 
-# Preview production build
+# 本番ビルドをプレビュー
 npm run preview
 ```
 
-## 🎮 Controls & Navigation
+## 🎮 操作方法
 
-### 🌊 Dive Controls
-- **Dive Button**: Initiate dive from surface to underwater depths (right-bottom corner)
-- **Surface Button**: Return to surface from underwater depths
-- **Scroll to Dive**: First mouse wheel scroll triggers automatic dive (can be disabled with reduced motion)
-- **Auto-Skip**: Users with `prefers-reduced-motion` skip animation and start at shallow depth (40%)
+### 🌊 ダイブコントロール
+- **Diveボタン**: 水面から水中深部への潜行開始（右下角）
+- **Surfaceボタン**: 水中深部から水面への浮上
+- **スクロールでダイブ**: 初回マウスホイールスクロールで自動ダイブ（reduced-motionでは無効化可能）
+- **自動スキップ**: `prefers-reduced-motion` ユーザーは浅い深度（40%）で開始
 
-### 🎛️ Camera Controls
-- **Mouse/Touch Drag**: Rotate camera around the scene (disabled rotation limits for immersion)
-- **Mouse Wheel/Pinch**: Zoom in and out (3-25 unit range, disabled in reduced motion)
-- **Touch**: Full touch support with gesture recognition for mobile devices
-- **Damping**: Smooth camera movement with configurable damping factor
+### ⌨️ キーボードショートカット
+- **`R` キー**: 新しいランダムシードでオブジェクトレイアウト再生成
+- **`H` キー**: UI表示切替（全インターフェース要素の表示/非表示）
+- **`L` キー**: 低電力モード切替（エフェクトとジオメトリ削減）
+- **`ESC` キー**: 開いているパネルを閉じる（About、Works、Contact）
 
-### ⌨️ Keyboard Shortcuts
-- **`R` Key**: Regenerate object layout with new random seed
-- **`H` Key**: Toggle UI visibility (hide/show all interface elements)
-- **`L` Key**: Toggle low power mode (reduces effects and geometry)
-- **`ESC` Key**: Close any open panels (About, Works, Contact)
+### 🎯 オブジェクトインタラクション
+- **ホバー/タッチ**: 水中時にバイリンガル説明表示（英語＋日本語）
+- **オブジェクトクリック**: クリックしたオブジェクト周辺で泡のバースト効果
+- **近接ラベル**: 十分な深度（25%以上）でダイブした時のみラベル表示
+- **スケールアニメーション**: ホバー/フォーカス時のGSAPスムーズスケール
 
-### 🎯 Object Interaction
-- **Hover/Touch**: Display bilingual descriptions (English + Japanese) when underwater
-- **Click Objects**: Trigger bubble burst effects around clicked objects
-- **Proximity Labels**: Smart labels appear only when diving deep enough (depth ≥ 25%)
-- **Scale Animation**: Objects smoothly scale up on hover/focus with GSAP
-
-### 📱 Mobile-Specific Controls
-- **Touch Navigation**: Optimized touch targets for mobile devices
-- **Gesture Support**: Pinch-to-zoom and drag-to-rotate with momentum
-- **Reduced Complexity**: Automatic reduction in bubble count and effects
-- **Battery Friendly**: Auto-enables low power mode on mobile detection
-
-## 🏗️ Project Structure
+## 🏗️ プロジェクト構造
 
 ```
 ocean-playground/
-├── public/                    # Static assets
-│   ├── favicon.svg           # Ocean-themed favicon with animated bubbles
-│   ├── og-ocean.jpg         # Social media preview image
-│   └── models/              # Optional 3D models (GLTFs) - falls back to procedural
 ├── src/
-│   ├── components/          # React Three Fiber components
-│   │   ├── DiveSystem.jsx             # Advanced dive animation controller
-│   │   ├── EnhancedBubbleSystem.jsx   # InstancedMesh bubble system (150 bubbles)
-│   │   ├── EnhancedOceanSurface.jsx   # Depth-responsive water shader
-│   │   ├── ObjectsCluster.jsx         # Seeded random object placement
-│   │   ├── PostProcessingEffects.jsx  # Bloom, Vignette, Chromatic Aberration
-│   │   ├── Loading.jsx                # Animated loading screen
-│   │   ├── objects/                   # Procedural 3D objects
-│   │   │   ├── FloatRing.jsx         # Striped swim ring with shaders
-│   │   │   ├── TreasureChest.jsx     # Wooden chest with metal hardware
-│   │   │   └── GlassBottle.jsx       # Refractive glass with internal message
-│   │   └── ui/                        # Enhanced UI system
-│   │       ├── Overlay.jsx           # Main UI with dive controls
-│   │       └── panels/               # Modal panels
-│   │           ├── AboutPanel.jsx    # Animated about information
-│   │           ├── WorksPanel.jsx    # Portfolio showcase
-│   │           └── ContactPanel.jsx  # Functional contact form
-│   ├── state/               # State management
-│   │   └── useAppState.js   # Zustand store (depth, diving, performance, UI)
-│   ├── shaders/            # Custom GLSL shaders
-│   │   ├── oceanFragment.glsl       # Enhanced ocean surface fragment
-│   │   └── oceanVertex.glsl         # Multi-octave wave vertex shader
-│   ├── utils/              # Utility functions
-│   │   └── useWindowSize.js        # Responsive hook
-│   ├── App.jsx             # Enhanced main app with performance optimization
-│   ├── index.css           # Global styles with Inter + Noto Sans JP
-│   └── main.jsx            # Application entry point
-├── index.html              # HTML template with enhanced meta tags
-├── package.json            # Dependencies (added Zustand, postprocessing)
-├── vite.config.js          # Vite configuration
-└── README.md               # This comprehensive documentation
+│   ├── components/
+│   │   ├── Scene.tsx                    # メインシーン（8秒ウォッチドッグ付き）
+│   │   ├── DiveSystem.tsx               # StrictMode保護付きダイブシステム
+│   │   ├── EnhancedBubbleSystem.jsx     # InstancedMesh泡システム（150個）
+│   │   ├── EnhancedOceanSurface.jsx     # 深度対応水面シェーダー
+│   │   ├── SafeObjectsCluster.tsx       # セーフGLTFローダー付きオブジェクト
+│   │   ├── PostProcessingEffects.jsx    # Bloom、Vignette、ChromaticAberration
+│   │   ├── objects/                     # セーフオブジェクト（GLTFフォールバック付き）
+│   │   │   ├── safeLoadGLTF.ts         # GLTFセーフローダーユーティリティ
+│   │   │   ├── SafeGlassBottle.tsx     # ガラス瓶（GLTF→プロシージャル）
+│   │   │   ├── SafeTreasureChest.tsx   # 宝箱（GLTF→プロシージャル）
+│   │   │   └── SafeFloatRing.tsx       # 浮き輪（GLTF→プロシージャル）
+│   │   └── ui/                          # 強化UIシステム
+│   │       ├── Overlay.tsx             # メインUI（ブートローダー付き）
+│   │       └── panels/                 # モーダルパネル
+│   ├── state/
+│   │   └── useAppState.ts              # TypeScript Zustandストア（ブート状態付き）
+│   ├── utils/
+│   │   └── withTimeout.ts              # タイムアウトユーティリティ
+│   ├── App.tsx                         # TypeScriptメインアプリ
+│   ├── main.tsx                        # StrictMode付きエントリーポイント
+│   └── index.css                       # グローバルスタイル
+├── public/                             # 静的アセット
+├── index.html                          # HTMLテンプレート
+├── package.json                        # 依存関係
+├── vite.config.js                      # Vite設定
+└── README.md                           # この包括的なドキュメント
 ```
 
-## 🛠️ Technical Details
+## 🛠️ 技術詳細
 
-### Core Technologies
-- **React 18**: Modern React with hooks, concurrent features, and Suspense
-- **React Three Fiber**: Declarative React renderer for Three.js with performance optimizations
-- **@react-three/drei**: Extended component library (OrbitControls, Environment, Html, Water)
-- **@react-three/postprocessing**: Professional post-processing effects pipeline
-- **Three.js 0.158+**: Latest 3D graphics library with WebGL2 support
-- **GSAP 3.12**: Professional animation library with timeline control
-- **Zustand 4.4**: Lightweight state management with selectors and persistence
-- **Vite 5.0**: Ultra-fast build tool with optimized bundling
+### コアテクノロジー
+- **React 18**: 同時実行機能とSuspense付きモダンReact
+- **React Three Fiber**: Three.jsのReact宣言的レンダラー
+- **@react-three/drei**: 拡張コンポーネントライブラリ
+- **@react-three/postprocessing**: プロ仕様ポストプロセッシング
+- **Three.js 0.158+**: WebGL2対応最新3Dグラフィクスライブラリ
+- **GSAP 3.12**: タイムライン制御付きプロ仕様アニメーションライブラリ
+- **Zustand 4.4**: セレクターと永続化付き軽量状態管理
+- **TypeScript 5.0**: 型安全性と開発者体験向上
+- **Vite 5.0**: 最適化バンドル付き超高速ビルドツール
 
-### 🚀 Performance Optimizations
-- **Adaptive Quality Scaling**: Real-time performance monitoring with automatic LOD adjustment
-- **InstancedMesh Systems**: High-performance rendering for bubbles (single draw call for 150 objects)
-- **Frustum Culling**: Automatic object culling for off-screen elements
-- **Tab Visibility Management**: Reduces GSAP ticker to 10fps when tab is inactive
-- **Device-Specific Scaling**: Mobile gets 60 bubbles vs 150 on desktop, reduced shadow quality
-- **Memory Management**: Proper cleanup of geometries, materials, and textures
-- **Reduced Motion Support**: Honors system preferences with 1.2s animations vs 3.2s
+### 🛡️ 堅牢性機能
+- **8秒ウォッチドッグタイマー**: 確実な起動完了保証
+- **WebGL失敗検出**: コンテキスト作成テストと自動フォールバック
+- **GLTFタイムアウト**: 5秒制限付きアセットロード
+- **プロシージャルフォールバック**: GLTF失敗時の自動代替生成
+- **StrictMode保護**: 二重初期化防止ガード
+- **メモリ管理**: ジオメトリ、マテリアル、テクスチャの適切なクリーンアップ
 
-### 🎨 Advanced Shaders & Effects
-- **Multi-Octave Ocean Shader**: Combines multiple noise layers for realistic wave patterns
-- **Depth-Responsive Materials**: Water color and opacity change based on dive depth
-- **Fresnel Reflections**: Realistic water surface reflections with viewing angle
-- **Caustics Simulation**: Underwater light patterns with animated caustics
-- **Post-Processing Pipeline**: 
-  - Bloom with luminance threshold (PC only)
-  - Dynamic vignette based on depth (0.05 → 0.14)
-  - Subtle chromatic aberration for underwater distortion
-- **Procedural Object Shaders**: Custom stripe patterns, wood grain, glass refraction
+### 🎨 高度なシェーダー＆エフェクト
+- **多重オクターブ海洋シェーダー**: リアルな波パターンのための複数ノイズレイヤー
+- **深度対応マテリアル**: ダイブ深度に応じた水色と不透明度変化
+- **フレネル反射**: 視角に基づくリアルな水面反射
+- **コースティクスシミュレーション**: アニメーション付き水中光パターン
+- **ポストプロセッシングパイプライン**:
+  - 輝度閾値付きBloom（PCのみ）
+  - 深度ベース動的Vignette（0.05 → 0.14）
+  - 水中歪み用微細Chromatic Aberration
 
-## 🎨 Customization
+## 🚨 トラブルシューティング
 
-### 🏺 Adding New Procedural Objects
-1. Create component in `src/components/objects/YourObject.jsx`
-2. Add to `ObjectsCluster.jsx` object types array
-3. Include bilingual descriptions (EN/JP) for underwater labels
-4. Implement hover/focus animations with GSAP
+### 🔧 よくある問題と解決方法
 
-### 🌊 Dive Animation Customization
-- Modify `DiveSystem.jsx` camera keyframes and timing
-- Adjust depth mapping functions in `useAppState.js`
-- Customize fog, lighting, and color transitions
-- Add new depth-triggered effects or UI elements
+**🛡️ セーフモードが起動する**
+- 8秒以内に初期化が完了しなかった場合の正常動作
+- WebGL初期化またはGLTFロードが失敗した場合
+- 「Retry」ボタンで通常モードを再試行可能
+- セーフモードでも完全に動作（エフェクト削減版）
 
-### Modifying Ocean Colors
-Edit the color values in `OceanSurface.jsx`:
-```jsx
-waterColor: 0x006994,  // Deep ocean blue
-sunColor: 0x87ceeb,    // Sky blue for sun rays
-```
+**🌊 ダイブアニメーションが動作しない**
+- `prefers-reduced-motion` が有効な場合（40%深度で開始する仕様）
+- JavaScriptが有効でGSAPが正常にロードされているか確認
+- スクロールではなく「Dive」ボタンを試す
+- ブートが完了してから（8秒以内）ダイブ可能
 
-### Adjusting Performance
-Modify performance settings in `App.jsx`:
-```jsx
-// Reduce bubble count for lower-end devices
-<BubbleSystem count={isMobile ? 15 : 30} />
+**📱 モバイル性能が悪い**
+- 低電力モードが自動有効化 - `L`キーまたはボタンで切替
+- 他のブラウザタブやアプリを閉じてメモリを確保
+- ブラウザキャッシュをクリアして再試行
+- ブラウザ設定でハードウェアアクセラレーションが有効か確認
 
-// Adjust DPR (Device Pixel Ratio) for quality vs performance
-dpr={isMobile ? [1, 1.5] : [1, 2]}
-```
+**🎮 コントロールが反応しない**
+- WebGLがサポートされ有効になっているか確認
+- プライベート/シークレットモードで拡張機能を除外して試行
+- ブラウザコンソールでエラーを確認（F12 → Console）
+- タッチ/マウスイベントが他の要素によってブロックされていないか確認
 
-### UI Customization
-- Colors and styling: Edit `src/index.css`
-- Panel content: Modify components in `UIOverlay.jsx`
-- Add new panels: Extend the panel system with new components
+**⚠️ file:// プロトコル警告**
+- `npm run dev` を実行して http://localhost:5173 から開く
+- 直接HTMLファイルを開かず、必ず開発サーバーを使用
+- モジュール読み込みには必ずHTTPサーバーが必要
 
-## 📱 Mobile & Accessibility Features
+## 📋 動作確認チェックリスト
 
-### 🔋 Automatic Mobile Optimizations
-- **Smart Detection**: Combines screen size + user agent detection
-- **Reduced Complexity**: 60 bubbles (vs 150), simplified shaders, no shadows
-- **Battery Optimization**: Auto-enables low power mode, reduces DPR to [1, 1.5]
-- **Memory Management**: Lower resolution textures, simplified geometries
-- **Performance Scaling**: Disables post-processing effects (Bloom, Chromatic Aberration)
+### ✅ 基本動作確認
+- [ ] `npm install` が正常に完了する
+- [ ] `npm run dev` でサーバーが起動する
+- [ ] 8秒以内にローディング画面が消える
+- [ ] 3D海洋シーンが表示される
+- [ ] ダイブボタンが機能する
+- [ ] キーボードショートカット（R/H/L/ESC）が動作する
 
-### 👆 Enhanced Touch Interactions
-- **Gesture Recognition**: Native pinch-to-zoom and drag-to-rotate
-- **Touch Targets**: Enlarged buttons (44px minimum) for accessibility
-- **Haptic Feedback**: Visual feedback for touch interactions
-- **Momentum Scrolling**: Natural camera movement with inertia
+### ✅ エラーハンドリング確認
+- [ ] file:// で開いた場合に警告バナーが表示される
+- [ ] GLTFファイルが存在しない場合にプロシージャルオブジェクトが表示される
+- [ ] WebGL無効時にエラーパネルが表示される
+- [ ] セーフモードが適切に機能する
+- [ ] エラー発生時に「Retry」ボタンが機能する
 
-### ♿ Comprehensive Accessibility Support
-- **WCAG 2.1 AA Compliance**: High contrast ratios, focus indicators
-- **Keyboard Navigation**: Full keyboard support with Tab, Arrow keys, Enter/Space
-- **Screen Reader Support**: Proper ARIA labels, roles, and live regions
-- **Reduced Motion**: Honors `prefers-reduced-motion` system setting
-- **Focus Management**: Visible focus rings, logical tab order
-- **Color Independence**: Information not conveyed by color alone
+### ✅ パフォーマンス確認
+- [ ] モバイルで低電力モードが自動有効化される
+- [ ] セーフモードで泡数が削減される（60個以下）
+- [ ] ポストプロセッシング効果がセーフモードで無効化される
+- [ ] StrictModeで二重初期化が発生しない
 
-## 🌐 Browser Support
+## 🤝 貢献
 
-### Recommended Browsers
-- **Chrome/Edge**: Full WebGL 2.0 support
-- **Firefox**: Excellent performance and compatibility
-- **Safari**: Good support with some limitations
-- **Mobile Safari/Chrome**: Optimized mobile experience
+### 開発
+1. リポジトリをフォーク
+2. フィーチャーブランチを作成
+3. 変更を実装
+4. デスクトップとモバイルで徹底テスト
+5. プルリクエストを送信
 
-### WebGL Requirements
-- WebGL 1.0 minimum (WebGL 2.0 recommended)
-- Hardware acceleration enabled
-- Modern graphics drivers
+### 貢献アイデア
+- 新しいプロシージャル3Dオブジェクト
+- 追加のシェーダーエフェクトと視覚改善
+- パフォーマンス最適化
+- アクセシビリティ強化
+- 新しいUIパネルや機能
 
-## 🚀 Deployment
+## 🔗 リンク
 
-### Vercel (Recommended)
-1. Push code to GitHub repository
-2. Connect repository to Vercel
-3. Automatic deployment with optimized settings
-
-### Netlify
-```bash
-npm run build
-# Deploy the 'dist' folder to Netlify
-```
-
-### Static Hosting
-The build creates static files that can be hosted anywhere:
-- GitHub Pages
-- AWS S3 + CloudFront
-- Any static hosting service
-
-## 🐛 Troubleshooting
-
-### 🔧 Common Issues & Solutions
-
-**🌊 Dive Animation Not Working**
-- Check if `prefers-reduced-motion` is enabled (starts at 40% depth instead)
-- Verify JavaScript is enabled and GSAP is loading properly
-- Try clicking the "Dive" button instead of scrolling
-
-**📱 Poor Mobile Performance**
-- Low power mode automatically enables - toggle with `L` key or button
-- Close other browser tabs and apps for more memory
-- Clear browser cache and try again
-- Check that hardware acceleration is enabled in browser settings
-
-**🎮 Controls Not Responding**
-- Ensure WebGL is supported and enabled
-- Try in private/incognito mode to rule out extensions
-- Check browser console for errors (F12 → Console)
-- Verify touch/mouse events aren't blocked by other elements
-
-**🌊 Objects Missing or Invisible**
-- Objects only appear underwater (depth ≥ 25%) - dive first!
-- Try regenerating layout with `R` key or Reset button
-- Check if objects visibility is toggled off (button in UI)
-- Some ad blockers interfere with 3D rendering - try disabling temporarily
-
-**🎨 Visual Effects Not Loading**
-- Post-processing effects disabled on mobile/low power mode
-- Check WebGL2 support - fallback to WebGL1 reduces effects
-- Ensure graphics drivers are updated
-- Try toggling low power mode with `L` key
-
-### ⚡ Performance Optimization Tips
-- **Enable Hardware Acceleration**: Chrome Settings → Advanced → System
-- **Close Background Apps**: Free up RAM and GPU resources  
-- **Update Graphics Drivers**: Especially important for WebGL performance
-- **Use Recommended Browsers**: Chrome/Edge for best WebGL2 support
-- **Clear Browser Cache**: Remove old cached resources
-- **Disable Browser Extensions**: Test in incognito mode first
-
-## 🤝 Contributing
-
-### Development
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly on both desktop and mobile
-5. Submit a pull request
-
-### Ideas for Contributions
-- New interactive objects with unique behaviors
-- Additional shader effects and visual improvements
-- Performance optimizations
-- Accessibility enhancements
-- New UI panels or features
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 🙏 Acknowledgments
-
-- **Three.js Community**: For the amazing 3D graphics library
-- **React Three Fiber**: For making Three.js declarative and React-friendly
-- **@react-three/drei**: For the helpful utilities and components
-- **GSAP**: For smooth, professional animations
-- **Ocean Inspiration**: From countless hours staring at real ocean waves
-
-## 🔗 Links
-
-- [Live Demo](https://ocean-playground.vercel.app) (Replace with actual URL)
 - [Three.js Documentation](https://threejs.org/docs/)
 - [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
 - [GSAP Documentation](https://greensock.com/docs/)
+- [Zustand Documentation](https://docs.pmnd.rs/zustand)
 
 ---
 
-Dive in and explore the depths of creativity! 🌊
+🌊 **堅牢で美しい海の深みへダイブし、創造性の海を探索しましょう！**
 
 *Built with ☕ and endless fascination with the ocean by Freshjelly*

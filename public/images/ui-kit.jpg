@@ -1,7 +1,0 @@
-<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-  <rect width="400" height="300" fill="#667eea"/>
-  <rect x="50" y="50" width="100" height="40" rx="6" fill="#ffffff"/>
-  <rect x="250" y="50" width="100" height="40" rx="6" fill="#f093fb"/>
-  <rect x="50" y="150" width="300" height="80" rx="12" fill="#ffffff" opacity="0.9"/>
-  <text x="200" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#ffffff">UI Kit Components</text>
-</svg>

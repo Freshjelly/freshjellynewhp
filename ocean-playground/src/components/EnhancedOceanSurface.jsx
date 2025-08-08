@@ -1,7 +1,13 @@
 import React, { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useAppState } from '../state/useAppState'
-import * as THREE from 'three'
+import { 
+  ShaderMaterial, 
+  Color, 
+  DoubleSide, 
+  MathUtils,
+  AdditiveBlending 
+} from 'three'
 
 /**
  * Enhanced Ocean Surface with Depth-Based Effects
@@ -183,7 +189,7 @@ const EnhancedOceanSurface = () => {
       }
     `
     
-    return new THREE.ShaderMaterial({
+    return new ShaderMaterial({
       vertexShader,
       fragmentShader,
       uniforms: {
@@ -191,13 +197,13 @@ const EnhancedOceanSurface = () => {
         uDepth: { value: 0 },
         uWaveAmp: { value: prefersReducedMotion ? 0.01 : 0.02 },
         uWaveFreq: { value: 0.3 },
-        uColorShallow: { value: new THREE.Color(0x4fc3f7) }, // Light blue
-        uColorDeep: { value: new THREE.Color(0x1976d2) },    // Deep blue
+        uColorShallow: { value: new Color(0x4fc3f7) }, // Light blue
+        uColorDeep: { value: new Color(0x1976d2) },    // Deep blue
         uOpacity: { value: 0.7 },
         uRefractionStrength: { value: 0.2 }
       },
       transparent: true,
-      side: THREE.DoubleSide
+      side: DoubleSide
     })
   }, [prefersReducedMotion])
 
@@ -213,7 +219,7 @@ const EnhancedOceanSurface = () => {
       
       // Reduce wave amplitude in low power mode or reduced motion
       const targetWaveAmp = (lowPowerMode || prefersReducedMotion) ? 0.005 : 0.02
-      material.uniforms.uWaveAmp.value = THREE.MathUtils.lerp(
+      material.uniforms.uWaveAmp.value = MathUtils.lerp(
         material.uniforms.uWaveAmp.value,
         targetWaveAmp,
         0.1
@@ -224,8 +230,8 @@ const EnhancedOceanSurface = () => {
       const transmissionStrength = Math.max(0.3, 1.0 - depth * 0.7)
       
       // Update colors based on depth
-      const shallowColor = new THREE.Color().setHSL(0.55, 0.6 - depth * 0.2, 0.7)
-      const deepColor = new THREE.Color().setHSL(0.6, 0.8 - depth * 0.3, 0.3 + depth * 0.2)
+      const shallowColor = new Color().setHSL(0.55, 0.6 - depth * 0.2, 0.7)
+      const deepColor = new Color().setHSL(0.6, 0.8 - depth * 0.3, 0.3 + depth * 0.2)
       
       material.uniforms.uColorShallow.value.copy(shallowColor)
       material.uniforms.uColorDeep.value.copy(deepColor)
@@ -256,7 +262,7 @@ const EnhancedOceanSurface = () => {
             color={0x4fc3f7}
             transparent
             opacity={0.1 * depth}
-            blending={THREE.AdditiveBlending}
+            blending={AdditiveBlending}
           />
         </mesh>
       )}

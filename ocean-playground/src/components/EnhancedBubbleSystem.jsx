@@ -1,7 +1,15 @@
 import React, { useRef, useMemo, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useAppState } from '../state/useAppState'
-import * as THREE from 'three'
+import { 
+  SphereGeometry, 
+  MeshPhysicalMaterial, 
+  Matrix4, 
+  Vector3, 
+  Vector2,
+  Quaternion, 
+  Raycaster 
+} from 'three'
 
 /**
  * Enhanced Bubble System with InstancedMesh
@@ -63,9 +71,9 @@ const EnhancedBubbleSystem = () => {
 
   // Create instanced mesh with bubble geometry
   const [geometry, material] = useMemo(() => {
-    const geo = new THREE.SphereGeometry(1, 8, 6) // Low-poly for performance
+    const geo = new SphereGeometry(1, 8, 6) // Low-poly for performance
     
-    const mat = new THREE.MeshPhysicalMaterial({
+    const mat = new MeshPhysicalMaterial({
       color: 0x87ceeb,
       transparent: true,
       opacity: 0.4,
@@ -133,11 +141,11 @@ const EnhancedBubbleSystem = () => {
       
       // Create transformation matrix for this instance
       const scale = bubbleData.scales[i] * (1 + Math.sin(bubbleData.lifetimes[i]) * 0.1)
-      const matrix = new THREE.Matrix4()
+      const matrix = new Matrix4()
       matrix.compose(
-        new THREE.Vector3(x, y, z),
-        new THREE.Quaternion(),
-        new THREE.Vector3(scale, scale, scale)
+        new Vector3(x, y, z),
+        new Quaternion(),
+        new Vector3(scale, scale, scale)
       )
       
       // Set instance matrix
@@ -159,12 +167,12 @@ const EnhancedBubbleSystem = () => {
       if (!meshRef.current) return
       
       // Find nearest object and create bubble burst
-      const mouse = new THREE.Vector2(
+      const mouse = new Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
       )
       
-      const raycaster = new THREE.Raycaster()
+      const raycaster = new Raycaster()
       raycaster.setFromCamera(mouse, camera)
       
       // Create a few extra bubbles near the click point

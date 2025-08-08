@@ -20,10 +20,26 @@ const BootLoader = () => {
       if (loadingElement) {
         setTimeout(() => {
           loadingElement.classList.add('hidden')
+          // Dispatch a custom event to signal app is ready
+          window.dispatchEvent(new CustomEvent('ocean-playground-ready'))
         }, 500)
       }
     }
   }, [isBooting])
+  
+  // 🚨 ADDITIONAL FALLBACK: Force hide loading after 10 seconds regardless
+  useEffect(() => {
+    const emergencyTimer = setTimeout(() => {
+      console.warn('[BOOT] Emergency fallback - hiding loading screen after 10s')
+      const loadingElement = document.getElementById('loading')
+      if (loadingElement) {
+        loadingElement.classList.add('hidden')
+        window.dispatchEvent(new CustomEvent('ocean-playground-ready'))
+      }
+    }, 10000)
+    
+    return () => clearTimeout(emergencyTimer)
+  }, [])
 
   if (!isBooting && !bootError && !protocolWarning) {
     return null

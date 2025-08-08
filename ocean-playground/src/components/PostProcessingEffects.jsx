@@ -2,7 +2,7 @@ import React from 'react'
 import { EffectComposer, Bloom, Vignette, ChromaticAberration } from '@react-three/postprocessing'
 import { BlendFunction } from 'postprocessing'
 import { useAppState } from '../state/useAppState'
-import * as THREE from 'three'
+import { Vector2 } from 'three'
 
 /**
  * Post-processing Effects for Ocean Environment
@@ -49,7 +49,7 @@ const PostProcessingEffects = () => {
       {!isMobile && depth > 0.3 && (
         <ChromaticAberration
           blendFunction={BlendFunction.NORMAL}
-          offset={new THREE.Vector2(0.0005 * depth, 0.0003 * depth)}
+          offset={new Vector2(0.0005 * depth, 0.0003 * depth)}
         />
       )}
     </EffectComposer>

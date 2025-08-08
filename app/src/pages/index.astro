@@ -1,0 +1,241 @@
+---
+// Static hero page with immediate FCP
+import Scene from '../components/Scene.tsx'
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Freshjelly's Ocean Playground</title>
+		<meta name="description" content="Dive into an immersive WebGL ocean experience with React Three Fiber" />
+		
+		<!-- Font Preload (Inter for headings only) -->
+		<link rel="preload" href="/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin />
+		
+		<!-- DNS Prefetch for potential CDN resources -->
+		<link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+		
+		<!-- Critical inline CSS for above-the-fold content (< 2KB) -->
+		<style>
+			@font-face {
+				font-family: 'Inter';
+				font-style: normal;
+				font-weight: 700;
+				font-display: swap;
+				src: url('/fonts/inter-700.woff2') format('woff2');
+			}
+			
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			
+			body {
+				font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+				overflow-x: hidden;
+				background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+				min-height: 100vh;
+			}
+			
+			.hero {
+				position: relative;
+				width: 100%;
+				height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				overflow: hidden;
+			}
+			
+			.hero-bg {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: -1;
+				background: linear-gradient(180deg, 
+					rgba(135, 206, 235, 0.9) 0%, 
+					rgba(70, 130, 180, 0.8) 50%, 
+					rgba(25, 25, 112, 0.9) 100%);
+			}
+			
+			.hero-content {
+				text-align: center;
+				color: white;
+				z-index: 1;
+				padding: 2rem;
+				animation: fadeInUp 0.8s ease-out;
+			}
+			
+			.hero-title {
+				font-family: 'Inter', system-ui, sans-serif;
+				font-size: clamp(2rem, 5vw, 4rem);
+				font-weight: 700;
+				margin-bottom: 1rem;
+				text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+				letter-spacing: -0.02em;
+			}
+			
+			.hero-subtitle {
+				font-size: clamp(1rem, 2.5vw, 1.5rem);
+				font-weight: 300;
+				opacity: 0.95;
+				margin-bottom: 2rem;
+				text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+			}
+			
+			.hero-cta {
+				display: inline-block;
+				padding: 1rem 2.5rem;
+				background: rgba(255, 255, 255, 0.15);
+				backdrop-filter: blur(10px);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				border-radius: 50px;
+				color: white;
+				text-decoration: none;
+				font-weight: 500;
+				transition: all 0.3s ease;
+				font-size: 1.1rem;
+			}
+			
+			.hero-cta:hover {
+				background: rgba(255, 255, 255, 0.25);
+				transform: translateY(-2px);
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+			}
+			
+			.hero-placeholder {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				opacity: 0.3;
+				z-index: -1;
+			}
+			
+			@keyframes fadeInUp {
+				from {
+					opacity: 0;
+					transform: translateY(30px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+			
+			.scene-loading {
+				position: fixed;
+				bottom: 2rem;
+				right: 2rem;
+				color: white;
+				font-size: 0.9rem;
+				padding: 0.75rem 1.5rem;
+				background: rgba(0, 0, 0, 0.5);
+				backdrop-filter: blur(10px);
+				border-radius: 25px;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+				pointer-events: none;
+			}
+			
+			.scene-loading.visible {
+				opacity: 1;
+			}
+			
+			.waves {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				width: 100%;
+				height: 15vh;
+				min-height: 100px;
+				max-height: 150px;
+				z-index: 0;
+			}
+			
+			.wave {
+				position: absolute;
+				top: -100px;
+				left: 0;
+				width: 200%;
+				height: 100%;
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 45%;
+				animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+			}
+			
+			.wave:nth-of-type(2) {
+				top: -80px;
+				animation: wave 6s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite;
+				opacity: 0.8;
+			}
+			
+			.wave:nth-of-type(3) {
+				top: -60px;
+				animation: wave 8s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.25s infinite;
+				opacity: 0.6;
+			}
+			
+			@keyframes wave {
+				0% {
+					transform: translateX(0) translateY(0);
+				}
+				50% {
+					transform: translateX(-25%) translateY(-20px);
+				}
+				100% {
+					transform: translateX(-50%) translateY(0);
+				}
+			}
+			
+			@media (max-width: 768px) {
+				.hero-cta {
+					padding: 0.875rem 2rem;
+					font-size: 1rem;
+				}
+			}
+			
+			@media (prefers-reduced-motion: reduce) {
+				.hero-content {
+					animation: none;
+				}
+				.wave {
+					animation: none;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<!-- Hero Section with Immediate Paint -->
+			<section class="hero">
+				<div class="hero-bg"></div>
+				
+				<!-- CSS Waves Animation (lightweight fallback) -->
+				<div class="waves">
+					<div class="wave"></div>
+					<div class="wave"></div>
+					<div class="wave"></div>
+				</div>
+				
+				<div class="hero-content">
+					<h1 class="hero-title">Freshjelly's Ocean</h1>
+					<p class="hero-subtitle">Dive into an immersive WebGL experience</p>
+					<a href="#explore" class="hero-cta">Start Exploring</a>
+				</div>
+			</section>
+
+			<!-- 3D Scene (loaded with client:visible for lazy mounting) -->
+			<Scene client:visible />
+		</main>
+	</body>
+</html>

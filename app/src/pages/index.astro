@@ -23,18 +23,16 @@ import { OceanHud } from '../components/ui/OceanHud.tsx'
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content="https://freshjelly.com" />
 		
-		<!-- Font Preload -->
-		<link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
-		<link rel="preload" href="/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin />
-		
 		<!-- Critical CSS -->
 		<style>
+			/* Use system fonts as fallback */
 			@font-face {
 				font-family: 'Inter';
 				font-style: normal;
 				font-weight: 400;
 				font-display: swap;
-				src: url('/fonts/inter-400.woff2') format('woff2');
+				src: local('Inter Regular'), local('Inter-Regular'),
+				     url('/fonts/inter-400.woff2') format('woff2');
 			}
 			
 			@font-face {
@@ -42,7 +40,8 @@ import { OceanHud } from '../components/ui/OceanHud.tsx'
 				font-style: normal;
 				font-weight: 700;
 				font-display: swap;
-				src: url('/fonts/inter-700.woff2') format('woff2');
+				src: local('Inter Bold'), local('Inter-Bold'),
+				     url('/fonts/inter-700.woff2') format('woff2');
 			}
 			
 			* {
@@ -185,10 +184,64 @@ import { OceanHud } from '../components/ui/OceanHud.tsx'
 					);
 				}
 			}
+			
+			/* Animation keyframes */
+			@keyframes gentleWaves {
+				0%, 100% { background-position: 0% 50%; transform: translateY(0); }
+				25% { background-position: 25% 45%; transform: translateY(-2px); }
+				50% { background-position: 50% 40%; transform: translateY(-1px); }
+				75% { background-position: 75% 45%; transform: translateY(-3px); }
+			}
+			
+			@keyframes foamBubble {
+				0% { opacity: 0; transform: scale(0.8) translateY(0); }
+				50% { opacity: 1; transform: scale(1) translateY(-5px); }
+				100% { opacity: 0; transform: scale(0.6) translateY(-15px); }
+			}
+			
+			@keyframes sunPulse {
+				0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+				50% { transform: scale(1.02) rotate(1deg); filter: brightness(1.1); }
+			}
+			
+			@keyframes cloudDriftLeft {
+				0% { transform: translateX(0); }
+				100% { transform: translateX(-20px); }
+			}
+			
+			@keyframes cloudDriftRight {
+				0% { transform: translateX(0); }
+				100% { transform: translateX(20px); }
+			}
+			
+			@keyframes seagullFly {
+				0% { transform: translateX(-100px) translateY(0) rotate(-5deg); }
+				100% { transform: translateX(1200px) translateY(-15px) rotate(-5deg); }
+			}
+			
+			/* Animation classes */
+			.wave-animation { animation: gentleWaves 6s ease-in-out infinite; }
+			.foam-bubble { animation: foamBubble 2s ease-out infinite; }
+			.sun-element { animation: sunPulse 8s ease-in-out infinite; }
+			.cloud-left { animation: cloudDriftLeft 20s linear infinite; }
+			.cloud-right { animation: cloudDriftRight 25s linear infinite; }
+			.seagull { animation: seagullFly 30s linear infinite; }
+			
+			/* Ocean canvas styles */
+			.ocean-canvas-container {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			
+			.deep-sea-section {
+				position: relative;
+				min-height: 100vh;
+				background: linear-gradient(to bottom, #000080 0%, #191970 30%, #0c0c2d 70%, #000 100%);
+			}
 		</style>
 		
-		<!-- Import animations CSS -->
-		<link rel="stylesheet" href="../styles/animations.css" />
 	</head>
 	<body>
 		<main class="will-change-scroll">

@@ -1,6 +1,6 @@
 import React, { Suspense, useRef, useMemo, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Environment, Fog, useGLTF } from '@react-three/drei'
+import { Environment, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { useOceanStore } from '../../stores/oceanStore'
 
@@ -276,7 +276,7 @@ function SharkScene() {
       
       {/* Environment and fog */}
       <Environment preset="dawn" background={false} />
-      <Fog attach="fog" args={['#001122', 1, 50]} />
+      <fog attach="fog" args={['#001122', 1, 50]} />
     </>
   )
 }

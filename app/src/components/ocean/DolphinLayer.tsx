@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react'
+import React, { useRef, useEffect, useCallback, useState, useMemo } from 'react'
 import { useOceanStore } from '../../stores/oceanStore'
 
 interface Dolphin {
@@ -36,29 +36,32 @@ export const DolphinLayer: React.FC = () => {
   } = useOceanStore()
 
   // Predefined paths for dolphin movement
-  const jumpPaths = [
-    // Surface jump path
-    { 
-      startX: -100, endX: window.innerWidth + 100,
-      startY: 0.2, endY: 0.15, // Relative to canvas height
-      controlY1: 0.05, controlY2: 0.1,
-      duration: 8000 
-    },
-    // Mid-depth crossing
-    { 
-      startX: window.innerWidth + 100, endX: -100,
-      startY: 0.4, endY: 0.45,
-      controlY1: 0.3, controlY2: 0.35,
-      duration: 10000 
-    },
-    // Deep water path
-    { 
-      startX: -100, endX: window.innerWidth + 100,
-      startY: 0.7, endY: 0.6,
-      controlY1: 0.5, controlY2: 0.65,
-      duration: 12000 
-    }
-  ]
+  const jumpPaths = useMemo(() => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1920
+    return [
+      // Surface jump path
+      { 
+        startX: -100, endX: width + 100,
+        startY: 0.2, endY: 0.15, // Relative to canvas height
+        controlY1: 0.05, controlY2: 0.1,
+        duration: 8000 
+      },
+      // Mid-depth crossing
+      { 
+        startX: width + 100, endX: -100,
+        startY: 0.4, endY: 0.45,
+        controlY1: 0.3, controlY2: 0.35,
+        duration: 10000 
+      },
+      // Deep water path
+      { 
+        startX: -100, endX: width + 100,
+        startY: 0.7, endY: 0.6,
+        controlY1: 0.5, controlY2: 0.65,
+        duration: 12000 
+      }
+    ]
+  }, [])
 
   // Create a new dolphin
   const createDolphin = useCallback((pathIndex: number = 0): Dolphin => {
@@ -79,7 +82,7 @@ export const DolphinLayer: React.FC = () => {
       pathProgress: 0,
       pathIndex
     }
-  }, [])
+  }, [jumpPaths])
 
   // Update dolphin along path
   const updateDolphin = useCallback((dolphin: Dolphin, deltaTime: number, canvas: HTMLCanvasElement) => {
@@ -132,7 +135,7 @@ export const DolphinLayer: React.FC = () => {
       dolphin.jumpHeight = 0
       dolphin.isJumping = false
     }
-  }, [])
+  }, [jumpPaths])
 
   // Render dolphin silhouette
   const renderDolphin = useCallback((ctx: CanvasRenderingContext2D, dolphin: Dolphin) => {

@@ -1,0 +1,468 @@
+---
+// 2D Beach Header with Parallax Layers
+---
+
+<div class="beach-hero" id="beach-hero">
+  <!-- Sky Background Layer -->
+  <div class="parallax-layer sky-layer">
+    <div class="sky-gradient"></div>
+    
+    <!-- Sun -->
+    <div class="sun sun-element">
+      <div class="sun-rays"></div>
+      <div class="sun-core"></div>
+    </div>
+    
+    <!-- Clouds -->
+    <div class="cloud cloud-1 cloud-left">
+      <svg viewBox="0 0 200 60" class="cloud-svg">
+        <ellipse cx="50" cy="30" rx="30" ry="15" fill="#ffffff" opacity="0.8"/>
+        <ellipse cx="80" cy="25" rx="35" ry="18" fill="#ffffff" opacity="0.9"/>
+        <ellipse cx="110" cy="30" rx="28" ry="14" fill="#ffffff" opacity="0.8"/>
+        <ellipse cx="140" cy="28" rx="32" ry="16" fill="#ffffff" opacity="0.85"/>
+      </svg>
+    </div>
+    
+    <div class="cloud cloud-2 cloud-right">
+      <svg viewBox="0 0 180 50" class="cloud-svg">
+        <ellipse cx="40" cy="25" rx="25" ry="12" fill="#ffffff" opacity="0.7"/>
+        <ellipse cx="65" cy="22" rx="30" ry="15" fill="#ffffff" opacity="0.8"/>
+        <ellipse cx="90" cy="25" rx="25" ry="12" fill="#ffffff" opacity="0.75"/>
+        <ellipse cx="115" cy="23" rx="28" ry="14" fill="#ffffff" opacity="0.8"/>
+      </svg>
+    </div>
+  </div>
+  
+  <!-- Horizon/Water Line -->
+  <div class="parallax-layer water-layer">
+    <div class="horizon-line"></div>
+    <div class="distant-waves wave-animation"></div>
+  </div>
+  
+  <!-- Beach/Sand Layer -->
+  <div class="parallax-layer beach-layer">
+    <!-- Sand -->
+    <div class="sand-base"></div>
+    
+    <!-- Wave foam -->
+    <div class="wave-foam">
+      <div class="foam-bubble"></div>
+      <div class="foam-bubble"></div>
+      <div class="foam-bubble"></div>
+      <div class="foam-bubble"></div>
+      <div class="foam-bubble"></div>
+    </div>
+    
+    <!-- Beach decorations -->
+    <div class="beach-decorations">
+      <!-- Seashells -->
+      <div class="seashell shell-1">
+        <svg viewBox="0 0 24 24" class="shell-svg">
+          <path d="M12 2L8 8h8l-4-6zm0 0l4 6v8l-4 4-4-4V8l4-6z" fill="#f4a261" opacity="0.8"/>
+        </svg>
+      </div>
+      
+      <div class="seashell shell-2">
+        <svg viewBox="0 0 24 24" class="shell-svg">
+          <circle cx="12" cy="12" r="8" fill="#e76f51" opacity="0.7"/>
+          <circle cx="12" cy="12" r="5" fill="#f4a261" opacity="0.8"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Title Content -->
+  <div class="hero-content">
+    <h1 class="hero-title">Fresh Jelly</h1>
+    <p class="hero-subtitle">Dive into the Digital Ocean</p>
+    <div class="scroll-indicator">
+      <div class="scroll-arrow">↓</div>
+      <span class="scroll-text">Explore</span>
+    </div>
+  </div>
+  
+  <!-- Optional seagull animation -->
+  <div class="seagull" aria-hidden="true">
+    <svg viewBox="0 0 60 20" class="seagull-svg">
+      <path d="M10,10 Q20,5 30,10 Q40,5 50,10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .beach-hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    perspective: 1000px;
+    background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #B8E6FF 100%);
+  }
+  
+  .parallax-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+  }
+  
+  /* Sky Layer */
+  .sky-layer {
+    z-index: 1;
+  }
+  
+  .sky-gradient {
+    width: 100%;
+    height: 70%;
+    background: linear-gradient(
+      to bottom,
+      #87CEEB 0%,
+      #B0E0E6 30%,
+      #E0F6FF 60%,
+      #F0FFFF 100%
+    );
+  }
+  
+  /* Sun */
+  .sun {
+    position: absolute;
+    top: 15%;
+    right: 20%;
+    width: 120px;
+    height: 120px;
+    transform-origin: center;
+  }
+  
+  .sun-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #FFD700 30%, #FFA500 70%, #FF8C00 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 30px #FFD700;
+  }
+  
+  .sun-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, transparent 40%, #FFD700 41%, transparent 42%);
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+  
+  /* Clouds */
+  .cloud {
+    position: absolute;
+    opacity: 0.8;
+  }
+  
+  .cloud-1 {
+    top: 20%;
+    left: 10%;
+    width: 200px;
+    height: 60px;
+  }
+  
+  .cloud-2 {
+    top: 35%;
+    right: 15%;
+    width: 180px;
+    height: 50px;
+  }
+  
+  .cloud-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+  }
+  
+  /* Water Layer */
+  .water-layer {
+    z-index: 2;
+    top: 60%;
+  }
+  
+  .horizon-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #4682B4, transparent);
+  }
+  
+  .distant-waves {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(
+      to bottom,
+      #4682B4 0%,
+      #5F9EA0 50%,
+      #7BB6B8 100%
+    );
+    background-size: 100px 20px;
+    background-repeat: repeat-x;
+    opacity: 0.8;
+  }
+  
+  /* Beach Layer */
+  .beach-layer {
+    z-index: 3;
+    top: 75%;
+  }
+  
+  .sand-base {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      #F4A460 0%,
+      #DEB887 30%,
+      #D2B48C 60%,
+      #BC9A6A 100%
+    );
+  }
+  
+  .wave-foam {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    overflow: hidden;
+  }
+  
+  .foam-bubble {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+  
+  .foam-bubble:nth-child(1) { left: 10%; animation-delay: 0s; }
+  .foam-bubble:nth-child(2) { left: 25%; animation-delay: 0.5s; }
+  .foam-bubble:nth-child(3) { left: 45%; animation-delay: 1s; }
+  .foam-bubble:nth-child(4) { left: 65%; animation-delay: 0.3s; }
+  .foam-bubble:nth-child(5) { left: 85%; animation-delay: 0.8s; }
+  
+  /* Beach decorations */
+  .beach-decorations {
+    position: absolute;
+    bottom: 20%;
+    width: 100%;
+    height: 60px;
+  }
+  
+  .seashell {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .shell-1 {
+    left: 30%;
+    bottom: 20px;
+    transform: rotate(-15deg);
+  }
+  
+  .shell-2 {
+    right: 40%;
+    bottom: 35px;
+    transform: rotate(25deg);
+  }
+  
+  /* Hero Content */
+  .hero-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    color: white;
+  }
+  
+  .hero-title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    background: linear-gradient(45deg, #FFD700, #FF6B35, #4FC3F7);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  
+  @keyframes shimmer {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(30deg); }
+  }
+  
+  .hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    font-weight: 300;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    opacity: 0.9;
+  }
+  
+  .scroll-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .scroll-indicator:hover {
+    transform: translateY(-5px);
+  }
+  
+  .scroll-arrow {
+    font-size: 2rem;
+    animation: bounce 2s infinite;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  }
+  
+  .scroll-text {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.8;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+  
+  /* Seagull */
+  .seagull {
+    position: absolute;
+    top: 25%;
+    left: -60px;
+    width: 60px;
+    height: 20px;
+    z-index: 5;
+    pointer-events: none;
+  }
+  
+  .seagull-svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Parallax effect on mouse move */
+  .beach-hero[data-mouse-parallax] .sun {
+    transform: translate(calc(var(--mouse-x, 0) * 5px), calc(var(--mouse-y, 0) * 3px));
+  }
+  
+  .beach-hero[data-mouse-parallax] .cloud-1 {
+    transform: translate(calc(var(--mouse-x, 0) * 3px), calc(var(--mouse-y, 0) * 2px));
+  }
+  
+  .beach-hero[data-mouse-parallax] .cloud-2 {
+    transform: translate(calc(var(--mouse-x, 0) * -2px), calc(var(--mouse-y, 0) * 1px));
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .sun {
+      width: 80px;
+      height: 80px;
+      top: 20%;
+      right: 15%;
+    }
+    
+    .sun-core {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .sun-rays {
+      width: 80px;
+      height: 80px;
+    }
+    
+    .cloud-1, .cloud-2 {
+      width: 120px;
+      height: 35px;
+    }
+    
+    .hero-content {
+      padding: 0 1rem;
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .sun-element,
+    .wave-animation,
+    .foam-bubble,
+    .cloud-left,
+    .cloud-right,
+    .seagull,
+    .scroll-arrow {
+      animation: none !important;
+    }
+    
+    .hero-title {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  // Lightweight mouse parallax effect
+  const hero = document.getElementById('beach-hero');
+  
+  if (hero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let mouseMoveTimeout: number;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = hero.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+      const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+      
+      hero.style.setProperty('--mouse-x', x.toString());
+      hero.style.setProperty('--mouse-y', y.toString());
+      hero.setAttribute('data-mouse-parallax', '');
+      
+      clearTimeout(mouseMoveTimeout);
+      mouseMoveTimeout = window.setTimeout(() => {
+        hero.removeAttribute('data-mouse-parallax');
+      }, 100);
+    };
+    
+    hero.addEventListener('mousemove', handleMouseMove);
+    
+    // Scroll indicator click handler
+    const scrollIndicator = hero.querySelector('.scroll-indicator');
+    scrollIndicator?.addEventListener('click', () => {
+      const oceanSection = document.getElementById('ocean');
+      if (oceanSection) {
+        oceanSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+</script>
